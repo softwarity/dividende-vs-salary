@@ -24,9 +24,19 @@ import { FiscalParams } from '../../models/fiscal.model';
         <div class="space-y-6 border-t border-slate-100 px-5 py-5">
           <!-- Dividendes -->
           <div>
-            <h3 class="mb-3 text-xs font-semibold uppercase tracking-wide text-accent-600">
-              Dividendes
-            </h3>
+            <div class="mb-3 flex items-center justify-between gap-2">
+              <h3 class="text-xs font-semibold uppercase tracking-wide text-accent-600">
+                Dividendes
+              </h3>
+              <a
+                class="inline-flex items-center gap-1 text-[11px] text-primary-600 hover:underline"
+                href="https://entreprendre.service-public.fr/vosdroits/F32963"
+                target="_blank" rel="noopener noreferrer"
+              >
+                source officielle
+                <span class="material-symbols-rounded text-[13px]">open_in_new</span>
+              </a>
+            </div>
             <div class="grid gap-4 sm:grid-cols-2">
               <label class="mat-field">
                 <span class="mat-label">Taux PFU (flat tax)</span>
@@ -44,9 +54,19 @@ import { FiscalParams } from '../../models/fiscal.model';
 
           <!-- IS -->
           <div>
-            <h3 class="mb-3 text-xs font-semibold uppercase tracking-wide text-accent-600">
-              Impôt sur les sociétés (IS)
-            </h3>
+            <div class="mb-3 flex items-center justify-between gap-2">
+              <h3 class="text-xs font-semibold uppercase tracking-wide text-accent-600">
+                Impôt sur les sociétés (IS)
+              </h3>
+              <a
+                class="inline-flex items-center gap-1 text-[11px] text-primary-600 hover:underline"
+                href="https://www.service-public.fr/professionnels-entreprises/vosdroits/F23575"
+                target="_blank" rel="noopener noreferrer"
+              >
+                source officielle
+                <span class="material-symbols-rounded text-[13px]">open_in_new</span>
+              </a>
+            </div>
             <div class="grid gap-4 sm:grid-cols-3">
               <label class="mat-field">
                 <span class="mat-label">Taux réduit</span>
@@ -71,9 +91,19 @@ import { FiscalParams } from '../../models/fiscal.model';
 
           <!-- Charges sociales -->
           <div>
-            <h3 class="mb-3 text-xs font-semibold uppercase tracking-wide text-accent-600">
-              Charges sociales SASU (% du brut)
-            </h3>
+            <div class="mb-3 flex items-center justify-between gap-2">
+              <h3 class="text-xs font-semibold uppercase tracking-wide text-accent-600">
+                Charges sociales SASU (% du brut)
+              </h3>
+              <a
+                class="inline-flex items-center gap-1 text-[11px] text-primary-600 hover:underline"
+                href="https://www.urssaf.fr/portail/home/employeur/creer/choisir-une-forme-juridique/le-statut-du-dirigeant/les-dirigeants-assimiles-salarie.html"
+                target="_blank" rel="noopener noreferrer"
+              >
+                source officielle
+                <span class="material-symbols-rounded text-[13px]">open_in_new</span>
+              </a>
+            </div>
             <div class="grid gap-4 sm:grid-cols-2">
               <label class="mat-field">
                 <span class="mat-label">Charges patronales</span>
@@ -92,9 +122,19 @@ import { FiscalParams } from '../../models/fiscal.model';
 
           <!-- IR -->
           <div>
-            <h3 class="mb-3 text-xs font-semibold uppercase tracking-wide text-accent-600">
-              Impôt sur le revenu (salaire)
-            </h3>
+            <div class="mb-3 flex items-center justify-between gap-2">
+              <h3 class="text-xs font-semibold uppercase tracking-wide text-accent-600">
+                Impôt sur le revenu (salaire)
+              </h3>
+              <a
+                class="inline-flex items-center gap-1 text-[11px] text-primary-600 hover:underline"
+                href="https://www.service-public.fr/particuliers/vosdroits/F1419"
+                target="_blank" rel="noopener noreferrer"
+              >
+                barème officiel
+                <span class="material-symbols-rounded text-[13px]">open_in_new</span>
+              </a>
+            </div>
             <div class="grid gap-4 sm:grid-cols-2">
               <label class="mat-field">
                 <span class="mat-label">Parts fiscales</span>
@@ -109,6 +149,19 @@ import { FiscalParams } from '../../models/fiscal.model';
                   (input)="patch({ autresRevenusImposables: num($event) })" />
               </label>
             </div>
+
+            <p class="mt-2 text-[11px] leading-relaxed text-slate-400">
+              Parts fiscales :
+              <a class="text-primary-600 hover:underline" target="_blank" rel="noopener noreferrer"
+                href="https://www.economie.gouv.fr/particuliers/gerer-mon-impot-sur-le-revenu/quotient-familial-et-impot-sur-le-revenu-comment-ca">
+                quotient familial (source)</a>.
+              Un abattement de 10 % pour frais professionnels (plafonné à
+              {{ nf(params().abattementSalairePlafond) }} €) est appliqué
+              automatiquement —
+              <a class="text-primary-600 hover:underline" target="_blank" rel="noopener noreferrer"
+                href="https://www.impots.gouv.fr/particulier/questions/comment-puis-je-beneficier-de-la-deduction-forfaitaire-de-10">
+                source</a>.
+            </p>
 
             <div class="mt-4">
               <span class="mat-label">Barème IR (par part)</span>
@@ -163,8 +216,14 @@ export class SettingsPanelComponent {
   readonly open = signal(true);
   reset = output<void>();
 
+  private readonly nfFr = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 });
+
   pct(v: number): number {
     return Math.round(v * 1000) / 10;
+  }
+
+  nf(v: number): string {
+    return this.nfFr.format(v);
   }
 
   num(event: Event): number {

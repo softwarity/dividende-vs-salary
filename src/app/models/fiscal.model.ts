@@ -70,7 +70,7 @@ export const DEFAULT_PARAMS: FiscalParams = {
   tauxChargesSalariales: 0.22,
 
   abattementSalaireTaux: 0.1,
-  abattementSalairePlafond: 14171,
+  abattementSalairePlafond: 14426,
   baremeIR: [
     { upTo: 11497, rate: 0 },
     { upTo: 29315, rate: 0.11 },
