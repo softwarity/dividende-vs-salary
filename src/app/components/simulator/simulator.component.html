@@ -63,14 +63,34 @@
       salaire versé par la société.
     </p>
     <div class="grid gap-4 sm:grid-cols-2">
-      <label class="mat-field">
-        <span class="mat-label">Parts fiscales</span>
+      <div class="mat-field">
+        <div class="mb-2 flex items-center justify-between">
+          <span class="mat-label mb-0">Parts fiscales</span>
+          <span class="rounded-md bg-primary-500/15 px-2 py-0.5 text-sm font-semibold text-primary-300">
+            {{ params().partsFiscales }}
+          </span>
+        </div>
         <input
-          type="number" step="0.5" min="1" class="mat-input"
+          type="range" min="1" max="5" step="0.5"
+          class="h-2 w-full cursor-pointer appearance-none rounded-full bg-slate-700 accent-primary-600"
           [value]="params().partsFiscales"
           (input)="patchParams({ partsFiscales: parseNum($event) })"
         />
-      </label>
+        <div class="mt-1 flex justify-between px-0.5">
+          <span class="h-1.5 w-px bg-slate-600"></span>
+          <span class="h-1 w-px bg-slate-700"></span>
+          <span class="h-1.5 w-px bg-slate-600"></span>
+          <span class="h-1 w-px bg-slate-700"></span>
+          <span class="h-1.5 w-px bg-slate-600"></span>
+          <span class="h-1 w-px bg-slate-700"></span>
+          <span class="h-1.5 w-px bg-slate-600"></span>
+          <span class="h-1 w-px bg-slate-700"></span>
+          <span class="h-1.5 w-px bg-slate-600"></span>
+        </div>
+        <div class="mt-0.5 flex justify-between px-0.5 text-[10px] text-slate-500">
+          <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+        </div>
+      </div>
       <label class="mat-field">
         <span class="mat-label">Autres revenus imposables (€)</span>
         <input
