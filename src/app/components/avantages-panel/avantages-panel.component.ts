@@ -197,12 +197,19 @@ type GenericKey = 'mutuelle' | 'prevoyance' | 'retraite' | 'chequesVacances' | '
     </ng-template>
 
     <ng-template #resultLine let-res="res">
-      <div class="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-slate-700 pt-2 text-sm">
-        <span class="text-slate-400">
-          Via société : <strong class="text-slate-200">{{ euro(res.coutSociete) }}</strong>
-          · via perso : <strong class="text-slate-200">{{ euro(res.coutPerso) }}</strong>
-        </span>
-        <span class="mat-chip bg-accent-500/15 text-accent-300">économie {{ euro(res.economie) }}</span>
+      <div class="mt-3 border-t border-slate-700 pt-2 text-sm">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <span class="text-slate-400">
+            Via société : <strong class="text-slate-200">{{ euro(res.coutSociete) }}</strong>
+            · via perso : <strong class="text-slate-200">{{ euro(res.coutPerso) }}</strong>
+          </span>
+          <span class="mat-chip bg-accent-500/15 text-accent-300">économie {{ euro(res.economie) }}</span>
+        </div>
+        <p class="mt-1 text-[11px] text-slate-500">
+          « Via société » = coût avant IS : la dépense est déductible (0 IS dessus).
+          « Via perso » = ce qu'il faut sortir avant IS pour la financer sur votre net
+          (après IS + PFU) — d'où l'écart.
+        </p>
       </div>
     </ng-template>
   `,
