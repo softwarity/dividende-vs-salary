@@ -108,6 +108,110 @@ export class SimulatorComponent {
     return this.fiscal.trimestresValides(brut, this.params());
   }
 
+  readonly copied = signal(false);
+
+  exportMarkdown(): void {
+    const md = this.buildMarkdown();
+    const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'simulation-dividende-vs-salaire.md';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  async copyMarkdown(): Promise<void> {
+    try {
+      await navigator.clipboard.writeText(this.buildMarkdown());
+      this.copied.set(true);
+      setTimeout(() => this.copied.set(false), 2000);
+    } catch {
+      /* presse-papiers indisponible */
+    }
+  }
+
+  private buildMarkdown(): string {
+    const p = this.params();
+    const net = this.netCible();
+    const e = this.euro;
+    const pc = this.pct;
+    const L: string[] = [];
+
+    L.push('# Simulation Dividende vs Salaire (SASU)', '');
+    L.push(`_Généré le ${new Date().toLocaleDateString('fr-FR')}_`, '');
+
+    L.push('## Paramètres', '');
+    L.push(`- **Net annuel souhaité (dans la poche)** : ${e(net)}`);
+    L.push(`- Parts fiscales : ${p.partsFiscales}`);
+    L.push(`- Autres revenus imposables : ${e(p.autresRevenusImposables)}`);
+    L.push(
+      `- Mode : ${this.mixteActif() ? 'Rémunération mixte (salaire + dividendes)' : 'Comparaison salaire pur vs dividende pur'}`,
+    );
+    L.push('', '### Taux retenus', '');
+    L.push(`- PFU (dividendes) : ${pc(p.tauxPFU)}`);
+    L.push(`- IS : ${pc(p.isTauxReduit)} jusqu'à ${e(p.isSeuil)}, puis ${pc(p.isTauxNormal)}`);
+    L.push(`- Charges patronales : ${pc(p.tauxChargesPatronales)} · salariales : ${pc(p.tauxChargesSalariales)}`);
+    L.push(`- Abattement frais pro : ${pc(p.abattementSalaireTaux)} (plafond ${e(p.abattementSalairePlafond)})`);
+    const bareme = p.baremeIR
+      .map((b) => `${b.upTo === null ? 'au-delà' : e(b.upTo)} : ${pc(b.rate)}`)
+      .join(' · ');
+    L.push(`- Barème IR (par part) : ${bareme}`, '');
+
+    if (this.mixteActif()) {
+      const mr = this.mixteResult();
+      const surcout = mr.coutTotal - this.result().dividende.coutEntreprise;
+      L.push('## Résultat — rémunération mixte', '');
+      L.push(`- **Coût total entreprise** : ${e(mr.coutTotal)} / an`);
+      L.push(`- Trimestres validés : ${mr.trimestres}/4 · protection sociale : ${mr.secuOuverte ? 'ouverte' : 'non'}`);
+      L.push(`- Surcoût vs 100 % dividende : ${e(surcout)} / an`, '');
+      L.push('| | Part salaire | Part dividendes |', '|---|---|---|');
+      L.push(`| Coût entreprise | ${e(mr.salaire.coutEntreprise)} | ${e(mr.dividende.coutEntreprise)} |`);
+      L.push(`| Net perçu | ${e(mr.salaire.netPoche)} | ${e(mr.dividende.netPoche)} |`);
+      L.push(`| Salaire brut | ${e(mr.salaire.brut)} | — |`, '');
+    } else {
+      const r = this.result();
+      L.push('## Résultat — comparaison', '');
+      L.push('| | Salaire | Dividende |', '|---|---|---|');
+      L.push(`| **Coût entreprise** | ${e(r.salaire.coutEntreprise)} | ${e(r.dividende.coutEntreprise)} |`);
+      L.push(`| Taux de prélèvement global | ${pc(r.salaire.tauxPrelevementGlobal)} | ${pc(r.dividende.tauxPrelevementGlobal)} |`);
+      L.push(`| Brut salaire / Bénéfice avant IS | ${e(r.salaire.brut)} | ${e(r.dividende.beneficeAvantIS)} |`);
+      L.push(`| Impôt sociétés (IS) | 0 € (déductible) | ${e(r.dividende.is)} |`);
+      L.push(`| Charges sociales / PFU | ${e(r.salaire.chargesPatronales + r.salaire.chargesSalariales)} | ${e(r.dividende.pfu)} |`);
+      L.push(`| Impôt sur le revenu | ${e(r.salaire.ir)} | — |`, '');
+      const reco =
+        r.meilleur === 'egalite'
+          ? 'Les deux options se valent.'
+          : r.meilleur === 'dividende'
+            ? `Les dividendes sont plus avantageux : économie ${e(r.economie)} / an.`
+            : `Le salaire est plus avantageux : économie ${e(r.economie)} / an.`;
+      L.push(`**${reco}**`, '');
+    }
+
+    const av = this.fiscal.calcAvantages(this.avantages(), p);
+    if (av.length) {
+      const total = av.reduce((s, x) => s + x.economie, 0);
+      L.push('## Avantages payés par la société', '');
+      L.push('| Avantage | Via société | Via perso | Économie |', '|---|---|---|---|');
+      for (const a of av) {
+        L.push(`| ${a.label} | ${e(a.coutSociete)} | ${e(a.coutPerso)} | ${e(a.economie)} |`);
+      }
+      L.push('', `**Économie totale via la société : ${e(total)} / an.**`, '');
+    }
+
+    L.push('## Hypothèses', '');
+    L.push('- Statut SASU : président assimilé salarié (charges forfaitaires sur le brut).');
+    L.push("- Salaire et charges déductibles (réduisent l'IS) ; dividendes versés après IS, non déductibles.");
+    L.push(`- Dividendes au PFU (${pc(p.tauxPFU)}), hors barème de l'IR.`);
+    L.push('- IR : barème + parts, sans décote ni plafonnement du quotient familial.');
+    L.push('- Mode mixte : salaire minimum = 4 trimestres (600 × SMIC).');
+    L.push('- Outil pédagogique : ne remplace pas l’avis d’un expert-comptable.', '');
+
+    return L.join('\n');
+  }
+
   // --- Graphe 1 : composition du coût pour chaque route ---
   readonly breakdownOptions = computed<EChartsOption>(() => {
     const s = this.salView();

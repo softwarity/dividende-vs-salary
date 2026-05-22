@@ -1,9 +1,23 @@
 <div class="mx-auto max-w-5xl space-y-6 px-4 py-6 sm:py-8">
   <!-- Saisie du net visé -->
   <section class="mat-card p-5 sm:p-6">
-    <label for="netCible" class="mat-label text-base">
-      Net annuel souhaité dans la poche
-    </label>
+    <div class="mb-1 flex items-start justify-between gap-3">
+      <label for="netCible" class="mat-label text-base">
+        Net annuel souhaité dans la poche
+      </label>
+      <div class="flex shrink-0 gap-2">
+        <button type="button" class="mat-btn-ghost" (click)="copyMarkdown()">
+          <span class="material-symbols-rounded text-[18px]">
+            {{ copied() ? 'check' : 'content_copy' }}
+          </span>
+          {{ copied() ? 'Copié' : 'Copier' }}
+        </button>
+        <button type="button" class="mat-btn-primary" (click)="exportMarkdown()">
+          <span class="material-symbols-rounded text-[18px]">download</span>
+          Markdown
+        </button>
+      </div>
+    </div>
     <p class="mb-4 text-sm text-slate-500">
       Montant qu'il vous reste réellement après charges et impôts. On calcule le coût
       correspondant pour la société, en salaire puis en dividendes.
