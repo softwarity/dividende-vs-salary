@@ -263,6 +263,14 @@ export function calcAvantages(a: AvantagesState, p: FiscalParams): AvantageResul
       ),
     );
   }
+  if (a.transport.actif) {
+    out.push(
+      calcAvantageGenerique(
+        'transport', 'Transport / mobilités durables',
+        a.transport.montantAnnuel, a.transport.partEmployeur, a.transport.plafondExoAnnuel, p,
+      ),
+    );
+  }
   if (a.autre.actif) {
     out.push(
       calcAvantageGenerique(

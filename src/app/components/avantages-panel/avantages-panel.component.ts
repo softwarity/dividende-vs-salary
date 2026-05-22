@@ -4,7 +4,7 @@ import { Avantage, AvantagesState, FiscalParams } from '../../models/fiscal.mode
 import { FiscalService } from '../../services/fiscal.service';
 import { formatEuro } from '../../utils/format';
 
-type GenericKey = 'mutuelle' | 'prevoyance' | 'retraite' | 'chequesVacances' | 'cesu';
+type GenericKey = 'mutuelle' | 'prevoyance' | 'retraite' | 'chequesVacances' | 'cesu' | 'transport';
 
 @Component({
   selector: 'app-avantages-panel',
@@ -67,26 +67,18 @@ type GenericKey = 'mutuelle' | 'prevoyance' | 'retraite' | 'chequesVacances' | '
               </div>
 
               @if (av.actif) {
-                <div class="mt-3 grid gap-3 sm:grid-cols-3">
+                <div class="mt-3 grid gap-3 sm:grid-cols-2">
                   <label class="mat-field">
                     <span class="mat-label">Montant annuel (€)</span>
                     <input type="number" step="100" class="mat-input"
                       [value]="av.montantAnnuel"
                       (input)="patchAv(key, { montantAnnuel: num($event) })" />
                   </label>
-                  <label class="mat-field">
-                    <span class="mat-label">Part société (%)</span>
-                    <input type="number" step="5" class="mat-input"
-                      [value]="pct(av.partEmployeur)"
-                      (input)="patchAv(key, { partEmployeur: num($event) / 100 })" />
-                  </label>
-                  <label class="mat-field">
-                    <span class="mat-label">Plafond exonéré (€)</span>
-                    <input type="number" step="100" class="mat-input"
-                      [value]="av.plafondExoAnnuel"
-                      (input)="patchAv(key, { plafondExoAnnuel: num($event) })" />
-                  </label>
                 </div>
+                <p class="mt-2 text-[11px] text-slate-400">
+                  Pris en charge à 100 % par la société · exonéré jusqu'à
+                  {{ euro(av.plafondExoAnnuel) }}/an.
+                </p>
                 @if (resultById(key); as res) {
                   <ng-container [ngTemplateOutlet]="resultLine" [ngTemplateOutletContext]="{ res }" />
                 }
@@ -118,38 +110,18 @@ type GenericKey = 'mutuelle' | 'prevoyance' | 'retraite' | 'chequesVacances' | '
             </div>
             @if (avantages().ticketsResto.actif) {
               @let t = avantages().ticketsResto;
-              <p class="mt-2 text-[11px] leading-relaxed text-slate-400">
-                La part société doit être <strong>entre 50 % et 60 %</strong> de la valeur du
-                titre (sinon plus d'exonération), et est exonérée jusqu'à
-                {{ t.plafondExoTitre }} €/titre (2026). Valeur faciale optimale :
-                12,20 – 14,64 €.
-              </p>
-              <div class="mt-3 grid gap-3 sm:grid-cols-4">
-                <label class="mat-field">
-                  <span class="mat-label">Valeur / titre (€)</span>
-                  <input type="number" step="0.5" class="mat-input"
-                    [value]="t.valeurFaciale"
-                    (input)="patchTicket({ valeurFaciale: num($event) })" />
-                </label>
+              <div class="mt-3 grid gap-3 sm:grid-cols-2">
                 <label class="mat-field">
                   <span class="mat-label">Titres / an</span>
                   <input type="number" step="10" class="mat-input"
                     [value]="t.nbJours"
                     (input)="patchTicket({ nbJours: num($event) })" />
                 </label>
-                <label class="mat-field">
-                  <span class="mat-label">Part société (%)</span>
-                  <input type="number" step="1" min="50" max="60" class="mat-input"
-                    [value]="pct(t.partEmployeur)"
-                    (input)="patchTicket({ partEmployeur: num($event) / 100 })" />
-                </label>
-                <label class="mat-field">
-                  <span class="mat-label">Exo / titre (€)</span>
-                  <input type="number" step="0.01" class="mat-input"
-                    [value]="t.plafondExoTitre"
-                    (input)="patchTicket({ plafondExoTitre: num($event) })" />
-                </label>
               </div>
+              <p class="mt-2 text-[11px] leading-relaxed text-slate-400">
+                Réglage optimal : valeur 12,20 €/titre, société 60 % = 7,32 €/titre exonérés
+                (le maximum), vous ne payez que 4,88 €/titre.
+              </p>
               @if (resultById('ticketsResto'); as res) {
                 <ng-container [ngTemplateOutlet]="resultLine" [ngTemplateOutletContext]="{ res }" />
               }
@@ -171,7 +143,7 @@ type GenericKey = 'mutuelle' | 'prevoyance' | 'retraite' | 'chequesVacances' | '
             </div>
             @if (avantages().autre.actif) {
               @let o = avantages().autre;
-              <div class="mt-3 grid gap-3 sm:grid-cols-4">
+              <div class="mt-3 grid gap-3 sm:grid-cols-3">
                 <label class="mat-field">
                   <span class="mat-label">Libellé</span>
                   <input type="text" class="mat-input"
@@ -185,18 +157,13 @@ type GenericKey = 'mutuelle' | 'prevoyance' | 'retraite' | 'chequesVacances' | '
                     (input)="patchAutre({ montantAnnuel: num($event) })" />
                 </label>
                 <label class="mat-field">
-                  <span class="mat-label">Part société (%)</span>
-                  <input type="number" step="5" class="mat-input"
-                    [value]="pct(o.partEmployeur)"
-                    (input)="patchAutre({ partEmployeur: num($event) / 100 })" />
-                </label>
-                <label class="mat-field">
                   <span class="mat-label">Plafond exonéré (€)</span>
                   <input type="number" step="100" class="mat-input"
                     [value]="o.plafondExoAnnuel"
                     (input)="patchAutre({ plafondExoAnnuel: num($event) })" />
                 </label>
               </div>
+              <p class="mt-2 text-[11px] text-slate-400">Pris en charge à 100 % par la société.</p>
               @if (resultById('autre'); as res) {
                 <ng-container [ngTemplateOutlet]="resultLine" [ngTemplateOutletContext]="{ res }" />
               }
@@ -249,13 +216,16 @@ export class AvantagesPanelComponent {
   readonly open = signal(false);
   readonly euro = formatEuro;
 
-  readonly genericKeys: GenericKey[] = ['mutuelle', 'prevoyance', 'retraite', 'chequesVacances', 'cesu'];
+  readonly genericKeys: GenericKey[] = [
+    'mutuelle', 'prevoyance', 'retraite', 'chequesVacances', 'cesu', 'transport',
+  ];
   readonly labels: Record<GenericKey, string> = {
     mutuelle: 'Complémentaire santé',
     prevoyance: 'Prévoyance',
     retraite: 'Complémentaire retraite',
     chequesVacances: 'Chèques-vacances',
     cesu: 'CESU préfinancé (garde, aide à domicile)',
+    transport: 'Transport / mobilités durables',
   };
   readonly descriptions: Record<string, string> = {
     mutuelle:
@@ -268,6 +238,8 @@ export class AvantagesPanelComponent {
       'Chèques-vacances (ANCV) : titres pour payer hébergement, transport, voyages et restauration de loisir.',
     cesu:
       "CESU préfinancé : titres pour régler des services à la personne (garde d'enfants, ménage, aide à domicile).",
+    transport:
+      'Transport / mobilités durables : prise en charge de l’abonnement de transports en commun (50 % minimum) et/ou forfait mobilités durables (vélo, covoiturage).',
     ticketsResto:
       'Titres-restaurant : titres pour payer ses repas, cofinancés par la société (50 à 60 % de la valeur).',
     autre:
@@ -279,7 +251,8 @@ export class AvantagesPanelComponent {
     retraite: 'https://www.urssaf.fr/portail/home/employeur/calculer-les-cotisations/les-elements-a-prendre-en-compte/les-retraites/les-contributions-patronales-de.html',
     chequesVacances: 'https://www.urssaf.fr/portail/home/employeur/calculer-les-cotisations/les-elements-a-prendre-en-compte/les-prestations-liees-aux-activi/les-prestations-non-soumises-a-c/les-cheques-vacances.html',
     cesu: 'https://www.cesu.urssaf.fr/info/accueil/s-informer-sur-le-cesu/tout-savoir/le-cesu-prefinance-quest-ce-que.html',
-    ticketsResto: 'https://www.urssaf.fr/portail/home/employeur/calculer-les-cotisations/les-elements-a-prendre-en-compte/les-frais-professionnels/les-titres-restaurant.html',
+    transport: 'https://entreprendre.service-public.gouv.fr/vosdroits/F33808',
+    ticketsResto: 'https://www.economie.gouv.fr/entreprises/gerer-ses-ressources-humaines-et-ses-salaries/titres-restaurant-les-5-informations-connaitre',
   };
 
   readonly results = computed(() => this.fiscal.calcAvantages(this.avantages(), this.params()));

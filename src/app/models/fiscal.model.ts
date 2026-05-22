@@ -129,6 +129,7 @@ export interface AvantagesState {
   ticketsResto: TicketsResto;
   chequesVacances: Avantage;
   cesu: Avantage;
+  transport: Avantage;
   autre: Avantage & { libelle: string };
 }
 
@@ -144,17 +145,18 @@ export interface AvantageResult {
 }
 
 export const DEFAULT_AVANTAGES: AvantagesState = {
-  mutuelle: { actif: false, montantAnnuel: 1200, partEmployeur: 1, plafondExoAnnuel: 1800 },
-  prevoyance: { actif: false, montantAnnuel: 600, partEmployeur: 1, plafondExoAnnuel: 1500 },
-  retraite: { actif: false, montantAnnuel: 2000, partEmployeur: 1, plafondExoAnnuel: 2403 },
+  mutuelle: { actif: false, montantAnnuel: 1800, partEmployeur: 1, plafondExoAnnuel: 1800 },
+  prevoyance: { actif: false, montantAnnuel: 1500, partEmployeur: 1, plafondExoAnnuel: 1500 },
+  retraite: { actif: false, montantAnnuel: 2403, partEmployeur: 1, plafondExoAnnuel: 2403 },
   ticketsResto: {
     actif: false,
-    valeurFaciale: 10,
+    valeurFaciale: 12.2,
     nbJours: 220,
-    partEmployeur: 0.5,
+    partEmployeur: 0.6,
     plafondExoTitre: 7.32,
   },
-  chequesVacances: { actif: false, montantAnnuel: 500, partEmployeur: 1, plafondExoAnnuel: 547 },
-  cesu: { actif: false, montantAnnuel: 1000, partEmployeur: 1, plafondExoAnnuel: 2591 },
+  chequesVacances: { actif: false, montantAnnuel: 547, partEmployeur: 1, plafondExoAnnuel: 547 },
+  cesu: { actif: false, montantAnnuel: 2591, partEmployeur: 1, plafondExoAnnuel: 2591 },
+  transport: { actif: false, montantAnnuel: 900, partEmployeur: 1, plafondExoAnnuel: 900 },
   autre: { actif: false, libelle: 'Autre avantage', montantAnnuel: 0, partEmployeur: 1, plafondExoAnnuel: 0 },
 };
