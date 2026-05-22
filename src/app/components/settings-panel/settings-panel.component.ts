@@ -120,11 +120,11 @@ import { FiscalParams } from '../../models/fiscal.model';
             </div>
           </div>
 
-          <!-- IR -->
+          <!-- IR : barème + abattement -->
           <div>
             <div class="mb-3 flex items-center justify-between gap-2">
               <h3 class="text-xs font-semibold uppercase tracking-wide text-accent-600">
-                Impôt sur le revenu (salaire)
+                Barème de l'impôt sur le revenu
               </h3>
               <a
                 class="inline-flex items-center gap-1 text-[11px] text-primary-600 hover:underline"
@@ -135,35 +135,8 @@ import { FiscalParams } from '../../models/fiscal.model';
                 <span class="material-symbols-rounded text-[13px]">open_in_new</span>
               </a>
             </div>
-            <div class="grid gap-4 sm:grid-cols-2">
-              <label class="mat-field">
-                <span class="mat-label">Parts fiscales</span>
-                <input type="number" step="0.5" min="1" class="mat-input"
-                  [value]="params().partsFiscales"
-                  (input)="patch({ partsFiscales: num($event) })" />
-              </label>
-              <label class="mat-field">
-                <span class="mat-label">Autres revenus imposables (€)</span>
-                <input type="number" step="500" class="mat-input"
-                  [value]="params().autresRevenusImposables"
-                  (input)="patch({ autresRevenusImposables: num($event) })" />
-              </label>
-            </div>
 
-            <p class="mt-2 text-[11px] leading-relaxed text-slate-400">
-              Parts fiscales :
-              <a class="text-primary-600 hover:underline" target="_blank" rel="noopener noreferrer"
-                href="https://www.economie.gouv.fr/particuliers/gerer-mon-impot-sur-le-revenu/quotient-familial-et-impot-sur-le-revenu-comment-ca">
-                quotient familial (source)</a>.
-              Un abattement de 10 % pour frais professionnels (plafonné à
-              {{ nf(params().abattementSalairePlafond) }} €) est appliqué
-              automatiquement —
-              <a class="text-primary-600 hover:underline" target="_blank" rel="noopener noreferrer"
-                href="https://www.impots.gouv.fr/particulier/questions/comment-puis-je-beneficier-de-la-deduction-forfaitaire-de-10">
-                source</a>.
-            </p>
-
-            <div class="mt-4">
+            <div>
               <span class="mat-label">Barème IR (par part)</span>
               <div class="overflow-hidden rounded-lg border border-slate-200">
                 <table class="w-full text-sm">
@@ -198,6 +171,14 @@ import { FiscalParams } from '../../models/fiscal.model';
                 </table>
               </div>
             </div>
+
+            <p class="mt-2 text-[11px] leading-relaxed text-slate-400">
+              Un abattement de 10 % pour frais professionnels (plafonné à
+              {{ nf(params().abattementSalairePlafond) }} €) est appliqué automatiquement —
+              <a class="text-primary-600 hover:underline" target="_blank" rel="noopener noreferrer"
+                href="https://www.impots.gouv.fr/particulier/questions/comment-puis-je-beneficier-de-la-deduction-forfaitaire-de-10">
+                source</a>.
+            </p>
           </div>
 
           <div class="flex justify-end">
@@ -213,7 +194,7 @@ import { FiscalParams } from '../../models/fiscal.model';
 })
 export class SettingsPanelComponent {
   readonly params = model.required<FiscalParams>();
-  readonly open = signal(true);
+  readonly open = signal(false);
   reset = output<void>();
 
   private readonly nfFr = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 });

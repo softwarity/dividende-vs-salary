@@ -35,8 +35,44 @@
     </div>
   </section>
 
-  <!-- Paramètres fiscaux (situation perso : parts, autres revenus, taux) -->
+  <!-- Paramètres fiscaux (taux : PFU, IS, charges, barème) -->
   <app-settings-panel class="block" [(params)]="params" (reset)="resetParams()" />
+
+  <!-- Foyer fiscal (situation personnelle) -->
+  <section class="mat-card p-5">
+    <header class="mb-1 flex items-center gap-2">
+      <span class="material-symbols-rounded text-primary-600">diversity_3</span>
+      <h2 class="text-lg font-semibold text-slate-800">Foyer fiscal</h2>
+    </header>
+    <p class="mb-4 text-sm text-slate-500">
+      Ces éléments font varier votre tranche d'imposition, donc l'impôt prélevé sur le
+      salaire versé par la société.
+    </p>
+    <div class="grid gap-4 sm:grid-cols-2">
+      <label class="mat-field">
+        <span class="mat-label">Parts fiscales</span>
+        <input
+          type="number" step="0.5" min="1" class="mat-input"
+          [value]="params().partsFiscales"
+          (input)="patchParams({ partsFiscales: parseNum($event) })"
+        />
+      </label>
+      <label class="mat-field">
+        <span class="mat-label">Autres revenus imposables (€)</span>
+        <input
+          type="number" step="500" min="0" class="mat-input"
+          [value]="params().autresRevenusImposables"
+          (input)="patchParams({ autresRevenusImposables: parseNum($event) })"
+        />
+      </label>
+    </div>
+    <p class="mt-2 text-[11px] leading-relaxed text-slate-400">
+      Nombre de parts :
+      <a class="text-primary-600 hover:underline" target="_blank" rel="noopener noreferrer"
+        href="https://www.economie.gouv.fr/particuliers/gerer-mon-impot-sur-le-revenu/quotient-familial-et-impot-sur-le-revenu-comment-ca">
+        quotient familial (source)</a>.
+    </p>
+  </section>
 
   <!-- Deux colonnes de comparaison -->
   @let r = result();

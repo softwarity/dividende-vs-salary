@@ -33,6 +33,15 @@ export class SimulatorComponent {
     this.netCible.set(Number.isFinite(v) && v >= 0 ? v : 0);
   }
 
+  parseNum(event: Event): number {
+    const v = parseFloat((event.target as HTMLInputElement).value);
+    return Number.isFinite(v) ? v : 0;
+  }
+
+  patchParams(partial: Partial<FiscalParams>): void {
+    this.params.update((p) => ({ ...p, ...partial }));
+  }
+
   resetParams(): void {
     this.params.set(clone(DEFAULT_PARAMS));
   }
