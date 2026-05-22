@@ -46,14 +46,17 @@ type GenericKey = 'mutuelle' | 'prevoyance' | 'retraite' | 'chequesVacances' | '
             @let av = avantages()[key];
             <div class="rounded-lg border border-slate-200 p-3">
               <div class="flex items-center justify-between gap-2">
-                <label class="flex cursor-pointer items-center gap-2">
-                  <input
-                    type="checkbox" class="h-4 w-4 accent-accent-600"
-                    [checked]="av.actif"
-                    (change)="patchAv(key, { actif: checked($event) })"
-                  />
-                  <span class="font-medium text-slate-700">{{ labels[key] }}</span>
-                </label>
+                <div class="flex items-center gap-1.5">
+                  <label class="flex cursor-pointer items-center gap-2">
+                    <input
+                      type="checkbox" class="h-4 w-4 accent-accent-600"
+                      [checked]="av.actif"
+                      (change)="patchAv(key, { actif: checked($event) })"
+                    />
+                    <span class="font-medium text-slate-700">{{ labels[key] }}</span>
+                  </label>
+                  <ng-container [ngTemplateOutlet]="infoIcon" [ngTemplateOutletContext]="{ text: descriptions[key] }" />
+                </div>
                 <a
                   class="inline-flex items-center gap-1 text-[11px] text-primary-600 hover:underline"
                   [href]="refs[key]" target="_blank" rel="noopener noreferrer"
@@ -94,14 +97,17 @@ type GenericKey = 'mutuelle' | 'prevoyance' | 'retraite' | 'chequesVacances' | '
           <!-- Titres-restaurant -->
           <div class="rounded-lg border border-slate-200 p-3">
             <div class="flex items-center justify-between gap-2">
-              <label class="flex cursor-pointer items-center gap-2">
-                <input
-                  type="checkbox" class="h-4 w-4 accent-accent-600"
-                  [checked]="avantages().ticketsResto.actif"
-                  (change)="patchTicket({ actif: checked($event) })"
-                />
-                <span class="font-medium text-slate-700">Titres-restaurant</span>
-              </label>
+              <div class="flex items-center gap-1.5">
+                <label class="flex cursor-pointer items-center gap-2">
+                  <input
+                    type="checkbox" class="h-4 w-4 accent-accent-600"
+                    [checked]="avantages().ticketsResto.actif"
+                    (change)="patchTicket({ actif: checked($event) })"
+                  />
+                  <span class="font-medium text-slate-700">Titres-restaurant</span>
+                </label>
+                <ng-container [ngTemplateOutlet]="infoIcon" [ngTemplateOutletContext]="{ text: descriptions['ticketsResto'] }" />
+              </div>
               <a
                 class="inline-flex items-center gap-1 text-[11px] text-primary-600 hover:underline"
                 [href]="refs['ticketsResto']" target="_blank" rel="noopener noreferrer"
@@ -152,14 +158,17 @@ type GenericKey = 'mutuelle' | 'prevoyance' | 'retraite' | 'chequesVacances' | '
 
           <!-- Autre -->
           <div class="rounded-lg border border-slate-200 p-3">
-            <label class="flex cursor-pointer items-center gap-2">
-              <input
-                type="checkbox" class="h-4 w-4 accent-accent-600"
-                [checked]="avantages().autre.actif"
-                (change)="patchAutre({ actif: checked($event) })"
-              />
-              <span class="font-medium text-slate-700">Autre avantage exonéré</span>
-            </label>
+            <div class="flex items-center gap-1.5">
+              <label class="flex cursor-pointer items-center gap-2">
+                <input
+                  type="checkbox" class="h-4 w-4 accent-accent-600"
+                  [checked]="avantages().autre.actif"
+                  (change)="patchAutre({ actif: checked($event) })"
+                />
+                <span class="font-medium text-slate-700">Autre avantage exonéré</span>
+              </label>
+              <ng-container [ngTemplateOutlet]="infoIcon" [ngTemplateOutletContext]="{ text: descriptions['autre'] }" />
+            </div>
             @if (avantages().autre.actif) {
               @let o = avantages().autre;
               <div class="mt-3 grid gap-3 sm:grid-cols-4">
@@ -211,6 +220,15 @@ type GenericKey = 'mutuelle' | 'prevoyance' | 'retraite' | 'chequesVacances' | '
       }
     </section>
 
+    <ng-template #infoIcon let-text="text">
+      <span class="group relative inline-flex">
+        <span tabindex="0" class="material-symbols-rounded cursor-help text-[16px] leading-none text-slate-400 hover:text-primary-600">info</span>
+        <span class="pointer-events-none absolute left-0 top-6 z-20 hidden w-56 rounded-lg bg-slate-800 px-3 py-2 text-[11px] font-normal leading-snug text-white shadow-lg group-hover:block group-focus-within:block">
+          {{ text }}
+        </span>
+      </span>
+    </ng-template>
+
     <ng-template #resultLine let-res="res">
       <div class="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-2 text-sm">
         <span class="text-slate-500">
@@ -238,6 +256,22 @@ export class AvantagesPanelComponent {
     retraite: 'Complémentaire retraite',
     chequesVacances: 'Chèques-vacances',
     cesu: 'CESU préfinancé (garde, aide à domicile)',
+  };
+  readonly descriptions: Record<string, string> = {
+    mutuelle:
+      'Complémentaire santé : rembourse tout ou partie des frais de santé non couverts par la Sécurité sociale (consultations, optique, dentaire…).',
+    prevoyance:
+      'Prévoyance : couvre les risques lourds — arrêt de travail, invalidité, décès — par des indemnités ou un capital, en complément de la Sécu.',
+    retraite:
+      "Complémentaire retraite (PER d'entreprise) : épargne retraite alimentée par la société, en plus des régimes obligatoires.",
+    chequesVacances:
+      'Chèques-vacances (ANCV) : titres pour payer hébergement, transport, voyages et restauration de loisir.',
+    cesu:
+      "CESU préfinancé : titres pour régler des services à la personne (garde d'enfants, ménage, aide à domicile).",
+    ticketsResto:
+      'Titres-restaurant : titres pour payer ses repas, cofinancés par la société (50 à 60 % de la valeur).',
+    autre:
+      'Tout autre avantage exonéré financé par la société (transport, mobilités durables, chèques-cadeaux…).',
   };
   readonly refs: Record<string, string> = {
     mutuelle: 'https://www.urssaf.fr/accueil/employeur/embaucher-gerer-salaries/embaucher/complementaire-frais-sante.html',
