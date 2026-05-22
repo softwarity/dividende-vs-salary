@@ -22,10 +22,12 @@
     background-attachment: fixed;
     min-height: 100vh;
   }
-  input,
+  input[type='number'],
+  input[type='text'],
   select,
   textarea {
     color: var(--text-primary);
+    background-color: #0d1117;
   }
   input::placeholder {
     color: var(--text-muted);
