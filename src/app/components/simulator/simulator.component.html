@@ -36,45 +36,10 @@
   </section>
 
   <!-- Paramètres fiscaux (situation perso : parts, autres revenus, taux) -->
-  <app-settings-panel [(params)]="params" (reset)="resetParams()" />
+  <app-settings-panel class="block" [(params)]="params" (reset)="resetParams()" />
 
-  <!-- Recommandation -->
+  <!-- Deux colonnes de comparaison -->
   @let r = result();
-  <section
-    class="mat-card flex items-center gap-4 p-5"
-    [class.ring-1]="true"
-    [class.ring-accent-400]="r.meilleur === 'dividende'"
-    [class.ring-primary-400]="r.meilleur === 'salaire'"
-  >
-    <span
-      class="material-symbols-rounded text-3xl"
-      [class.text-accent-600]="r.meilleur === 'dividende'"
-      [class.text-primary-600]="r.meilleur !== 'dividende'"
-    >
-      {{ r.meilleur === 'egalite' ? 'balance' : 'recommend' }}
-    </span>
-    <div>
-      @if (r.meilleur === 'dividende') {
-        <p class="font-semibold text-slate-800">
-          Les dividendes sont plus avantageux pour la société.
-        </p>
-      } @else if (r.meilleur === 'salaire') {
-        <p class="font-semibold text-slate-800">
-          Le salaire est plus avantageux pour la société.
-        </p>
-      } @else {
-        <p class="font-semibold text-slate-800">Les deux options se valent.</p>
-      }
-      @if (r.meilleur !== 'egalite') {
-        <p class="text-sm text-slate-500">
-          Économie sur le coût entreprise : <strong>{{ euro(r.economie) }}</strong> par an
-          pour un même net dans la poche.
-        </p>
-      }
-    </div>
-  </section>
-
-  <!-- Deux colonnes de résultats -->
   <div class="grid gap-6 md:grid-cols-2">
     <!-- Salaire -->
     <section
@@ -164,6 +129,41 @@
       </dl>
     </section>
   </div>
+
+  <!-- Résultat / recommandation -->
+  <section
+    class="mat-card flex items-center gap-4 p-5"
+    [class.ring-1]="true"
+    [class.ring-accent-400]="r.meilleur === 'dividende'"
+    [class.ring-primary-400]="r.meilleur === 'salaire'"
+  >
+    <span
+      class="material-symbols-rounded text-3xl"
+      [class.text-accent-600]="r.meilleur === 'dividende'"
+      [class.text-primary-600]="r.meilleur !== 'dividende'"
+    >
+      {{ r.meilleur === 'egalite' ? 'balance' : 'recommend' }}
+    </span>
+    <div>
+      @if (r.meilleur === 'dividende') {
+        <p class="font-semibold text-slate-800">
+          Les dividendes sont plus avantageux pour la société.
+        </p>
+      } @else if (r.meilleur === 'salaire') {
+        <p class="font-semibold text-slate-800">
+          Le salaire est plus avantageux pour la société.
+        </p>
+      } @else {
+        <p class="font-semibold text-slate-800">Les deux options se valent.</p>
+      }
+      @if (r.meilleur !== 'egalite') {
+        <p class="text-sm text-slate-500">
+          Économie sur le coût entreprise : <strong>{{ euro(r.economie) }}</strong> par an
+          pour un même net dans la poche.
+        </p>
+      }
+    </div>
+  </section>
 
   <!-- Graphes -->
   <section class="mat-card p-5">
