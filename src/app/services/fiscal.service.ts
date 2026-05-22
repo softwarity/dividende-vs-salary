@@ -1,8 +1,11 @@
 import { Injectable } from '@angular/core';
 import {
+  AvantageResult,
+  AvantagesState,
   ComparisonResult,
   DividendeResult,
   FiscalParams,
+  MixteResult,
   SalaireResult,
 } from '../models/fiscal.model';
 import * as core from './fiscal.core';
@@ -39,5 +42,25 @@ export class FiscalService {
 
   compare(netCible: number, p: FiscalParams): ComparisonResult {
     return core.compare(netCible, p);
+  }
+
+  salaireDepuisBrut(brut: number, p: FiscalParams): SalaireResult {
+    return core.salaireDepuisBrut(brut, p);
+  }
+
+  trimestresValides(brutAnnuel: number, p: FiscalParams): number {
+    return core.trimestresValides(brutAnnuel, p);
+  }
+
+  brutMin4Trimestres(p: FiscalParams): number {
+    return core.brutMin4Trimestres(p);
+  }
+
+  mixte(netCible: number, salaireBrut: number, p: FiscalParams): MixteResult {
+    return core.mixte(netCible, salaireBrut, p);
+  }
+
+  calcAvantages(a: AvantagesState, p: FiscalParams): AvantageResult[] {
+    return core.calcAvantages(a, p);
   }
 }

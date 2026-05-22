@@ -26,6 +26,9 @@ export interface FiscalParams {
   partsFiscales: number;
   /** Autres revenus nets imposables du foyer (hors salaire simulé). */
   autresRevenusImposables: number;
+
+  /** SMIC horaire brut (sert au calcul des trimestres de retraite). */
+  smicHoraire: number;
 }
 
 export interface SalaireResult {
@@ -80,4 +83,78 @@ export const DEFAULT_PARAMS: FiscalParams = {
   ],
   partsFiscales: 1,
   autresRevenusImposables: 0,
+
+  smicHoraire: 12.02,
+};
+
+// --- Rémunération mixte ---
+
+export interface MixteResult {
+  netCible: number;
+  salaire: SalaireResult; // part versée en salaire
+  dividende: DividendeResult; // part versée en dividendes
+  coutTotal: number; // coût entreprise total (avant IS)
+  trimestres: number; // trimestres de retraite validés (0 à 4)
+  secuOuverte: boolean; // protection sociale ouverte (salaire > 0)
+  /** Brut salaire minimum pour valider 4 trimestres. */
+  brutMin4Trimestres: number;
+}
+
+// --- Avantages (santé, retraite, titres-resto, chèques-vacances...) ---
+
+/** Avantage à montant annuel (mutuelle, complémentaire retraite, chèques-vacances, autre). */
+export interface Avantage {
+  actif: boolean;
+  /** Valeur reçue par an (€). */
+  montantAnnuel: number;
+  /** Part financée par la société (0 à 1). */
+  partEmployeur: number;
+  /** Plafond annuel d'exonération de charges (€). */
+  plafondExoAnnuel: number;
+}
+
+/** Titres-restaurant : valeur faciale par titre, nombre de titres, part employeur. */
+export interface TicketsResto {
+  actif: boolean;
+  valeurFaciale: number; // par titre
+  nbJours: number; // titres / an
+  partEmployeur: number; // 0,50 à 0,60
+  plafondExoTitre: number; // part employeur exonérée par titre (7,32 € en 2026)
+}
+
+export interface AvantagesState {
+  mutuelle: Avantage;
+  prevoyance: Avantage;
+  retraite: Avantage;
+  ticketsResto: TicketsResto;
+  chequesVacances: Avantage;
+  cesu: Avantage;
+  autre: Avantage & { libelle: string };
+}
+
+export interface AvantageResult {
+  id: string;
+  label: string;
+  valeurRecue: number; // ce que vous recevez (€/an)
+  partEmployeurMontant: number; // financé par la société
+  exonere: number; // part employeur exonérée (dans le plafond)
+  coutSociete: number; // coût avant IS, financé via la société
+  coutPerso: number; // coût avant IS, financé sur votre net
+  economie: number; // coutPerso - coutSociete
+}
+
+export const DEFAULT_AVANTAGES: AvantagesState = {
+  mutuelle: { actif: false, montantAnnuel: 1200, partEmployeur: 1, plafondExoAnnuel: 1800 },
+  prevoyance: { actif: false, montantAnnuel: 600, partEmployeur: 1, plafondExoAnnuel: 1500 },
+  retraite: { actif: false, montantAnnuel: 2000, partEmployeur: 1, plafondExoAnnuel: 3845 },
+  ticketsResto: {
+    actif: false,
+    valeurFaciale: 10,
+    nbJours: 220,
+    partEmployeur: 0.5,
+    plafondExoTitre: 7.32,
+  },
+  chequesVacances: { actif: false, montantAnnuel: 500, partEmployeur: 1, plafondExoAnnuel: 547 },
+  cesu: { actif: false, montantAnnuel: 1000, partEmployeur: 1, plafondExoAnnuel: 2540 },
+  autre: { actif: false, libelle: 'Autre avantage', montantAnnuel: 0, partEmployeur: 1, plafondExoAnnuel: 0 },
 };

@@ -1,9 +1,15 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { NgxEchartsDirective } from 'ngx-echarts';
 import type { EChartsOption } from 'echarts';
 import { FiscalService } from '../../services/fiscal.service';
-import { DEFAULT_PARAMS, FiscalParams } from '../../models/fiscal.model';
+import {
+  AvantagesState,
+  DEFAULT_AVANTAGES,
+  DEFAULT_PARAMS,
+  FiscalParams,
+} from '../../models/fiscal.model';
 import { SettingsPanelComponent } from '../settings-panel/settings-panel.component';
+import { AvantagesPanelComponent } from '../avantages-panel/avantages-panel.component';
 import { formatEuro, formatPct } from '../../utils/format';
 
 const clone = (p: FiscalParams): FiscalParams => ({
@@ -11,10 +17,13 @@ const clone = (p: FiscalParams): FiscalParams => ({
   baremeIR: p.baremeIR.map((b) => ({ ...b })),
 });
 
+const cloneAvantages = (a: AvantagesState): AvantagesState =>
+  JSON.parse(JSON.stringify(a)) as AvantagesState;
+
 @Component({
   selector: 'app-simulator',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NgxEchartsDirective, SettingsPanelComponent],
+  imports: [NgxEchartsDirective, SettingsPanelComponent, AvantagesPanelComponent],
   templateUrl: './simulator.component.html',
 })
 export class SimulatorComponent {
@@ -25,8 +34,42 @@ export class SimulatorComponent {
 
   readonly params = signal<FiscalParams>(clone(DEFAULT_PARAMS));
   readonly netCible = signal(40000);
+  readonly avantages = signal<AvantagesState>(cloneAvantages(DEFAULT_AVANTAGES));
+
+  // --- Mode mixte ---
+  readonly mixteActif = signal(false);
+  readonly salaireBrutMixte = signal(this.fiscal.brutMin4Trimestres(DEFAULT_PARAMS));
 
   readonly result = computed(() => this.fiscal.compare(this.netCible(), this.params()));
+
+  readonly brutMin = computed(() => this.fiscal.brutMin4Trimestres(this.params()));
+  readonly brutMax = computed(() =>
+    Math.max(this.brutMin(), this.fiscal.salaire(this.netCible(), this.params()).brut),
+  );
+  readonly mixteResult = computed(() =>
+    this.fiscal.mixte(this.netCible(), this.salaireBrutMixte(), this.params()),
+  );
+
+  // Vues unifiées : parts du mix, ou scénarios purs.
+  readonly salView = computed(() =>
+    this.mixteActif() ? this.mixteResult().salaire : this.result().salaire,
+  );
+  readonly divView = computed(() =>
+    this.mixteActif() ? this.mixteResult().dividende : this.result().dividende,
+  );
+
+  constructor() {
+    // Garde le brut du curseur dans les bornes valides.
+    effect(() => {
+      const min = this.brutMin();
+      const max = this.brutMax();
+      const v = this.salaireBrutMixte();
+      const clamped = Math.min(max, Math.max(min, v));
+      if (clamped !== v) {
+        this.salaireBrutMixte.set(clamped);
+      }
+    });
+  }
 
   setNet(event: Event): void {
     const v = parseFloat((event.target as HTMLInputElement).value);
@@ -46,11 +89,29 @@ export class SimulatorComponent {
     this.params.set(clone(DEFAULT_PARAMS));
   }
 
+  toggleMixte(event: Event): void {
+    const on = (event.target as HTMLInputElement).checked;
+    this.mixteActif.set(on);
+    if (on) {
+      this.salaireBrutMixte.set(this.brutMin());
+    }
+  }
+
+  setSalaireBrutMixte(event: Event): void {
+    const v = parseFloat((event.target as HTMLInputElement).value);
+    if (Number.isFinite(v)) {
+      this.salaireBrutMixte.set(v);
+    }
+  }
+
+  trimestres(brut: number): number {
+    return this.fiscal.trimestresValides(brut, this.params());
+  }
+
   // --- Graphe 1 : composition du coût pour chaque route ---
   readonly breakdownOptions = computed<EChartsOption>(() => {
-    const r = this.result();
-    const s = r.salaire;
-    const d = r.dividende;
+    const s = this.salView();
+    const d = this.divView();
     const tooltip = (v: number) => formatEuro(v);
     return {
       grid: { left: 8, right: 24, top: 44, bottom: 8, containLabel: true },
