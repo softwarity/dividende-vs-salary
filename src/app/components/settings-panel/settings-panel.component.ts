@@ -13,7 +13,7 @@ import { FiscalParams } from '../../models/fiscal.model';
       >
         <span class="flex items-center gap-2 font-medium text-slate-200">
           <span class="material-symbols-rounded text-primary-400">tune</span>
-          Paramètres fiscaux (tout est ajustable)
+          Paramètres fiscaux
         </span>
         <span class="material-symbols-rounded text-slate-400">
           {{ open() ? 'expand_less' : 'expand_more' }}

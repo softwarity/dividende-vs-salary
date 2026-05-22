@@ -156,10 +156,63 @@
     }
   </section>
 
-  <!-- Deux colonnes de comparaison -->
   @let r = result();
   @let sal = salView();
   @let div = divView();
+
+  <!-- Coût total / recommandation -->
+  @if (mixteActif()) {
+    @let mr = mixteResult();
+    <section class="mat-card flex items-center gap-4 p-5 ring-1 ring-primary-400">
+      <span class="material-symbols-rounded text-3xl text-primary-400">savings</span>
+      <div>
+        <p class="font-semibold text-slate-100">
+          Coût total du mix : {{ euro(mr.coutTotal) }} / an.
+        </p>
+        <p class="text-sm text-slate-400">
+          Vous validez {{ mr.trimestres }}/4 trimestres et ouvrez la protection sociale.
+          Surcoût vs 100 % dividende :
+          <strong>{{ euro(mr.coutTotal - r.dividende.coutEntreprise) }}</strong> / an.
+        </p>
+      </div>
+    </section>
+  } @else {
+    <section
+      class="mat-card flex items-center gap-4 p-5"
+      [class.ring-1]="true"
+      [class.ring-accent-400]="r.meilleur === 'dividende'"
+      [class.ring-primary-400]="r.meilleur === 'salaire'"
+    >
+      <span
+        class="material-symbols-rounded text-3xl"
+        [class.text-accent-400]="r.meilleur === 'dividende'"
+        [class.text-primary-400]="r.meilleur !== 'dividende'"
+      >
+        {{ r.meilleur === 'egalite' ? 'balance' : 'recommend' }}
+      </span>
+      <div>
+        @if (r.meilleur === 'dividende') {
+          <p class="font-semibold text-slate-100">
+            Les dividendes sont plus avantageux pour la société.
+          </p>
+        } @else if (r.meilleur === 'salaire') {
+          <p class="font-semibold text-slate-100">
+            Le salaire est plus avantageux pour la société.
+          </p>
+        } @else {
+          <p class="font-semibold text-slate-100">Les deux options se valent.</p>
+        }
+        @if (r.meilleur !== 'egalite') {
+          <p class="text-sm text-slate-400">
+            Économie sur le coût entreprise : <strong>{{ euro(r.economie) }}</strong> par an
+            pour un même net dans la poche.
+          </p>
+        }
+      </div>
+    </section>
+  }
+
+  <!-- Deux colonnes de comparaison -->
   <div class="grid gap-6 md:grid-cols-2">
     <!-- Salaire -->
     <section
@@ -179,10 +232,10 @@
 
       <p class="mb-3 flex flex-wrap gap-2 text-sm">
         <span class="mat-chip bg-primary-500/15 text-primary-300">{{ trimestres(sal.brut) }}/4 trimestres</span>
-        @if (sal.brut > 0) {
+        @if (trimestres(sal.brut) >= 1) {
           <span class="mat-chip bg-accent-500/15 text-accent-300">sécu ouverte</span>
         } @else {
-          <span class="mat-chip bg-slate-800 text-slate-400">aucun droit</span>
+          <span class="mat-chip bg-slate-800 text-slate-400">droits non ouverts</span>
         }
       </p>
 
@@ -279,58 +332,6 @@
       </dl>
     </section>
   </div>
-
-  <!-- Résultat -->
-  @if (mixteActif()) {
-    @let mr = mixteResult();
-    <section class="mat-card flex items-center gap-4 p-5 ring-1 ring-primary-400">
-      <span class="material-symbols-rounded text-3xl text-primary-400">savings</span>
-      <div>
-        <p class="font-semibold text-slate-100">
-          Coût total du mix : {{ euro(mr.coutTotal) }} / an.
-        </p>
-        <p class="text-sm text-slate-400">
-          Vous validez {{ mr.trimestres }}/4 trimestres et ouvrez la protection sociale.
-          Surcoût vs 100 % dividende :
-          <strong>{{ euro(mr.coutTotal - r.dividende.coutEntreprise) }}</strong> / an.
-        </p>
-      </div>
-    </section>
-  } @else {
-    <section
-      class="mat-card flex items-center gap-4 p-5"
-      [class.ring-1]="true"
-      [class.ring-accent-400]="r.meilleur === 'dividende'"
-      [class.ring-primary-400]="r.meilleur === 'salaire'"
-    >
-      <span
-        class="material-symbols-rounded text-3xl"
-        [class.text-accent-400]="r.meilleur === 'dividende'"
-        [class.text-primary-400]="r.meilleur !== 'dividende'"
-      >
-        {{ r.meilleur === 'egalite' ? 'balance' : 'recommend' }}
-      </span>
-      <div>
-        @if (r.meilleur === 'dividende') {
-          <p class="font-semibold text-slate-100">
-            Les dividendes sont plus avantageux pour la société.
-          </p>
-        } @else if (r.meilleur === 'salaire') {
-          <p class="font-semibold text-slate-100">
-            Le salaire est plus avantageux pour la société.
-          </p>
-        } @else {
-          <p class="font-semibold text-slate-100">Les deux options se valent.</p>
-        }
-        @if (r.meilleur !== 'egalite') {
-          <p class="text-sm text-slate-400">
-            Économie sur le coût entreprise : <strong>{{ euro(r.economie) }}</strong> par an
-            pour un même net dans la poche.
-          </p>
-        }
-      </div>
-    </section>
-  }
 
   <!-- Graphes -->
   <section class="mat-card p-5">
