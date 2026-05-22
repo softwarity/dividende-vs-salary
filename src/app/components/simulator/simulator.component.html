@@ -93,6 +93,10 @@
 
       <dl class="divide-y divide-slate-100 text-sm">
         <div class="flex justify-between py-2">
+          <dt class="text-slate-500">Impôt sur les sociétés</dt>
+          <dd class="font-medium text-slate-400">0 € · déductible</dd>
+        </div>
+        <div class="flex justify-between py-2">
           <dt class="text-slate-500">Salaire brut</dt>
           <dd class="font-medium">{{ euro(r.salaire.brut) }}</dd>
         </div>
@@ -121,6 +125,10 @@
           <dd class="font-medium">{{ pct(r.salaire.tauxPrelevementGlobal) }}</dd>
         </div>
       </dl>
+      <p class="mt-3 text-[11px] leading-relaxed text-slate-400">
+        Le salaire et les charges sont déductibles du résultat : la société ne paie pas
+        d'IS sur cette rémunération (contrairement aux dividendes, versés après IS).
+      </p>
     </section>
 
     <!-- Dividende -->
@@ -226,6 +234,10 @@
     </h3>
     <ul class="list-disc space-y-1 pl-5">
       <li>Statut SASU : président assimilé salarié (charges sociales forfaitaires sur le brut).</li>
+      <li>
+        Salaire et charges déductibles du résultat (pas d'IS) ; dividendes versés après
+        IS et non déductibles.
+      </li>
       <li>Dividendes soumis au PFU ({{ pct(params().tauxPFU) }}), non ajoutés au barème de l'IR.</li>
       <li>IR du salaire : barème + parts, sans décote ni plafonnement du quotient familial.</li>
       <li>Tous les taux sont ajustables dans le panneau « Paramètres fiscaux ».</li>
