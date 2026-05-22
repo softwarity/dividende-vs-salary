@@ -58,6 +58,42 @@ export class SimulatorComponent {
     this.mixteActif() ? this.mixteResult().dividende : this.result().dividende,
   );
 
+  // --- Avantages payés par la société (réservés au salaire) ---
+  readonly avantagesResults = computed(() =>
+    this.fiscal.calcAvantages(this.avantages(), this.params()),
+  );
+  readonly avantagesActifs = computed(() => this.avantagesResults().length > 0);
+  readonly avantagesValeur = computed(() =>
+    this.avantagesResults().reduce((s, a) => s + a.valeurRecue, 0),
+  );
+  readonly avantagesCoutSociete = computed(() =>
+    this.avantagesResults().reduce((s, a) => s + a.coutSociete, 0),
+  );
+  readonly avantagesCoutPerso = computed(() =>
+    this.avantagesResults().reduce((s, a) => s + a.coutPerso, 0),
+  );
+  readonly avantagesEconomie = computed(() =>
+    this.avantagesResults().reduce((s, a) => s + a.economie, 0),
+  );
+
+  // Coût total entreprise, avantages financés par la société inclus.
+  // Le salaire (ou la part salaire du mix) rend les avantages déductibles et exonérés ;
+  // en dividende pur ils doivent être auto-financés sur le net (coût « perso »).
+  readonly coutMixteAvecAvantages = computed(
+    () => this.mixteResult().coutTotal + this.avantagesCoutSociete(),
+  );
+  readonly coutSalaireAvecAvantages = computed(
+    () => this.result().salaire.coutEntreprise + this.avantagesCoutSociete(),
+  );
+  readonly coutDividendeAvecAvantages = computed(
+    () => this.result().dividende.coutEntreprise + this.avantagesCoutPerso(),
+  );
+  readonly meilleurAvecAvantages = computed<'salaire' | 'dividende' | 'egalite'>(() => {
+    const diff = this.coutSalaireAvecAvantages() - this.coutDividendeAvecAvantages();
+    if (Math.abs(diff) < 1) return 'egalite';
+    return diff > 0 ? 'dividende' : 'salaire';
+  });
+
   constructor() {
     // Garde le brut du curseur dans les bornes valides.
     effect(() => {
@@ -192,13 +228,23 @@ export class SimulatorComponent {
 
     const av = this.fiscal.calcAvantages(this.avantages(), p);
     if (av.length) {
-      const total = av.reduce((s, x) => s + x.economie, 0);
+      const totalEco = av.reduce((s, x) => s + x.economie, 0);
+      const coutSoc = av.reduce((s, x) => s + x.coutSociete, 0);
+      const valeur = av.reduce((s, x) => s + x.valeurRecue, 0);
+      const baseCout = this.mixteActif()
+        ? this.mixteResult().coutTotal
+        : this.result().salaire.coutEntreprise;
       L.push('## Avantages payés par la société', '');
       L.push('| Avantage | Via société | Via perso | Économie |', '|---|---|---|---|');
       for (const a of av) {
         L.push(`| ${a.label} | ${e(a.coutSociete)} | ${e(a.coutPerso)} | ${e(a.economie)} |`);
       }
-      L.push('', `**Économie totale via la société : ${e(total)} / an.**`, '');
+      L.push('', `**Économie totale via la société : ${e(totalEco)} / an.**`);
+      L.push(
+        `Coût total entreprise (rémunération + avantages) : **${e(baseCout + coutSoc)} / an** ` +
+          `— vous recevez ${e(net)} net + ${e(valeur)} d'avantages en nature.`,
+        '',
+      );
     }
 
     L.push('## Hypothèses', '');

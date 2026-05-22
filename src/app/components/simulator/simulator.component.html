@@ -163,52 +163,104 @@
   <!-- Coût total / recommandation -->
   @if (mixteActif()) {
     @let mr = mixteResult();
-    <section class="mat-card flex items-center gap-4 p-5 ring-1 ring-primary-400">
-      <span class="material-symbols-rounded text-3xl text-primary-400">savings</span>
-      <div>
-        <p class="font-semibold text-slate-100">
-          Coût total du mix : {{ euro(mr.coutTotal) }} / an.
-        </p>
-        <p class="text-sm text-slate-400">
-          Vous validez {{ mr.trimestres }}/4 trimestres et ouvrez la protection sociale.
-          Surcoût vs 100 % dividende :
-          <strong>{{ euro(mr.coutTotal - r.dividende.coutEntreprise) }}</strong> / an.
-        </p>
+    <section class="mat-card flex flex-col gap-4 p-5 ring-1 ring-primary-400">
+      <div class="flex items-center gap-4">
+        <span class="material-symbols-rounded text-3xl text-primary-400">savings</span>
+        <div>
+          <p class="font-semibold text-slate-100">
+            Coût total entreprise : {{ euro(coutMixteAvecAvantages()) }} / an.
+          </p>
+          <p class="text-sm text-slate-400">
+            Vous validez {{ mr.trimestres }}/4 trimestres et ouvrez la protection sociale.
+            Surcoût vs 100 % dividende :
+            <strong>{{ euro(mr.coutTotal - r.dividende.coutEntreprise) }}</strong> / an.
+          </p>
+        </div>
       </div>
+
+      @if (avantagesActifs()) {
+        <div class="grid gap-3 border-t border-slate-700 pt-4 text-sm sm:grid-cols-3">
+          <div>
+            <p class="text-slate-400">Rémunération ({{ euro(netCible()) }} net)</p>
+            <p class="text-base font-semibold text-slate-100">{{ euro(mr.coutTotal) }}</p>
+          </div>
+          <div>
+            <p class="text-slate-400">+ Avantages via société</p>
+            <p class="text-base font-semibold text-accent-300">{{ euro(avantagesCoutSociete()) }}</p>
+          </div>
+          <div>
+            <p class="text-slate-400">Vous recevez en nature</p>
+            <p class="text-base font-semibold text-slate-100">{{ euro(avantagesValeur()) }} d'avantages</p>
+          </div>
+        </div>
+        <p class="text-[11px] leading-relaxed text-slate-400">
+          Les avantages payés par la société sont déductibles : ils réduisent le bénéfice
+          imposable, donc l'IS. Les financer ainsi plutôt que sur votre net rapporte
+          <strong class="text-accent-300">{{ euro(avantagesEconomie()) }}</strong> / an.
+        </p>
+      }
     </section>
   } @else {
     <section
-      class="mat-card flex items-center gap-4 p-5"
+      class="mat-card flex flex-col gap-4 p-5"
       [class.ring-1]="true"
       [class.ring-accent-400]="r.meilleur === 'dividende'"
       [class.ring-primary-400]="r.meilleur === 'salaire'"
     >
-      <span
-        class="material-symbols-rounded text-3xl"
-        [class.text-accent-400]="r.meilleur === 'dividende'"
-        [class.text-primary-400]="r.meilleur !== 'dividende'"
-      >
-        {{ r.meilleur === 'egalite' ? 'balance' : 'recommend' }}
-      </span>
-      <div>
-        @if (r.meilleur === 'dividende') {
-          <p class="font-semibold text-slate-100">
-            Les dividendes sont plus avantageux pour la société.
-          </p>
-        } @else if (r.meilleur === 'salaire') {
-          <p class="font-semibold text-slate-100">
-            Le salaire est plus avantageux pour la société.
-          </p>
-        } @else {
-          <p class="font-semibold text-slate-100">Les deux options se valent.</p>
-        }
-        @if (r.meilleur !== 'egalite') {
-          <p class="text-sm text-slate-400">
-            Économie sur le coût entreprise : <strong>{{ euro(r.economie) }}</strong> par an
-            pour un même net dans la poche.
-          </p>
-        }
+      <div class="flex items-center gap-4">
+        <span
+          class="material-symbols-rounded text-3xl"
+          [class.text-accent-400]="r.meilleur === 'dividende'"
+          [class.text-primary-400]="r.meilleur !== 'dividende'"
+        >
+          {{ r.meilleur === 'egalite' ? 'balance' : 'recommend' }}
+        </span>
+        <div>
+          @if (r.meilleur === 'dividende') {
+            <p class="font-semibold text-slate-100">
+              Les dividendes sont plus avantageux pour la société.
+            </p>
+          } @else if (r.meilleur === 'salaire') {
+            <p class="font-semibold text-slate-100">
+              Le salaire est plus avantageux pour la société.
+            </p>
+          } @else {
+            <p class="font-semibold text-slate-100">Les deux options se valent.</p>
+          }
+          @if (r.meilleur !== 'egalite') {
+            <p class="text-sm text-slate-400">
+              Économie sur le coût entreprise : <strong>{{ euro(r.economie) }}</strong> par an
+              pour un même net dans la poche.
+            </p>
+          }
+        </div>
       </div>
+
+      @if (avantagesActifs()) {
+        <div class="grid gap-3 border-t border-slate-700 pt-4 text-sm sm:grid-cols-2">
+          <div class="rounded-lg bg-primary-500/10 p-3">
+            <p class="text-slate-400">Salaire + avantages</p>
+            <p class="text-lg font-bold text-primary-300">{{ euro(coutSalaireAvecAvantages()) }}</p>
+            <p class="mt-0.5 text-[11px] text-slate-400">
+              {{ euro(r.salaire.coutEntreprise) }} + {{ euro(avantagesCoutSociete()) }} d'avantages
+              déductibles (l'IS baisse).
+            </p>
+          </div>
+          <div class="rounded-lg bg-accent-500/10 p-3">
+            <p class="text-slate-400">Dividende + avantages</p>
+            <p class="text-lg font-bold text-accent-400">{{ euro(coutDividendeAvecAvantages()) }}</p>
+            <p class="mt-0.5 text-[11px] text-slate-400">
+              {{ euro(r.dividende.coutEntreprise) }} + {{ euro(avantagesCoutPerso()) }} auto-financés
+              sur votre net.
+            </p>
+          </div>
+        </div>
+        <p class="text-[11px] leading-relaxed text-slate-400">
+          Vous recevez {{ euro(avantagesValeur()) }} d'avantages en nature. En les passant par
+          la société plutôt que sur votre net :
+          <strong class="text-accent-300">{{ euro(avantagesEconomie()) }}</strong> d'économie / an.
+        </p>
+      }
     </section>
   }
 
