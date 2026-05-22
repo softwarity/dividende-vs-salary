@@ -53,8 +53,8 @@ export class SimulatorComponent {
     const d = r.dividende;
     const tooltip = (v: number) => formatEuro(v);
     return {
-      grid: { left: 8, right: 24, top: 40, bottom: 8, containLabel: true },
-      legend: { bottom: 0, icon: 'circle', itemWidth: 10, itemHeight: 10 },
+      grid: { left: 8, right: 24, top: 44, bottom: 8, containLabel: true },
+      legend: { top: 0, icon: 'circle', itemWidth: 10, itemHeight: 10 },
       tooltip: {
         trigger: 'axis',
         axisPointer: { type: 'shadow' },
@@ -126,8 +126,8 @@ export class SimulatorComponent {
       div.push([net, Math.round(this.fiscal.dividende(net, p).coutEntreprise)]);
     }
     return {
-      grid: { left: 8, right: 24, top: 40, bottom: 8, containLabel: true },
-      legend: { bottom: 0, icon: 'circle', itemWidth: 10, itemHeight: 10 },
+      grid: { left: 8, right: 24, top: 44, bottom: 28, containLabel: true },
+      legend: { top: 0, icon: 'circle', itemWidth: 10, itemHeight: 10 },
       tooltip: {
         trigger: 'axis',
         valueFormatter: (v) => formatEuro(v as number),
