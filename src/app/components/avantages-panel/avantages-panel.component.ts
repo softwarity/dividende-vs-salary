@@ -206,9 +206,12 @@ type GenericKey = 'mutuelle' | 'prevoyance' | 'retraite' | 'chequesVacances' | '
           <span class="mat-chip bg-accent-500/15 text-accent-300">économie {{ euro(res.economie) }}</span>
         </div>
         <p class="mt-1 text-[11px] text-slate-500">
-          « Via société » = coût avant IS : la dépense est déductible (0 IS dessus).
-          « Via perso » = ce qu'il faut sortir avant IS pour la financer sur votre net
-          (après IS + PFU) — d'où l'écart.
+          Payé par la société : charge déductible de
+          <strong class="text-slate-300">{{ euro(res.partEmployeurMontant) }}</strong> qui
+          <strong class="text-accent-300">réduit l'IS</strong> d'environ
+          {{ euro(res.partEmployeurMontant * isLow()) }} (15 %) à
+          {{ euro(res.partEmployeurMontant * isHigh()) }} (25 %).
+          « Via perso » coûte plus car financé sur votre net (après IS + PFU).
         </p>
       </div>
     </ng-template>
@@ -264,6 +267,9 @@ export class AvantagesPanelComponent {
 
   readonly results = computed(() => this.fiscal.calcAvantages(this.avantages(), this.params()));
   readonly totalEconomie = computed(() => this.results().reduce((s, r) => s + r.economie, 0));
+
+  readonly isLow = computed(() => this.params().isTauxReduit);
+  readonly isHigh = computed(() => this.params().isTauxNormal);
 
   resultById(id: string) {
     return this.results().find((r) => r.id === id);
