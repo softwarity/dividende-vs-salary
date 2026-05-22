@@ -18,7 +18,7 @@
         </button>
       </div>
     </div>
-    <p class="mb-4 text-sm text-slate-500">
+    <p class="mb-4 text-sm text-slate-400">
       Montant qu'il vous reste réellement après charges et impôts. On calcule le coût
       correspondant pour la société, en salaire puis en dividendes.
     </p>
@@ -42,7 +42,7 @@
         min="0"
         max="150000"
         step="1000"
-        class="h-2 w-full cursor-pointer appearance-none rounded-full bg-primary-100 accent-primary-600"
+        class="h-2 w-full cursor-pointer appearance-none rounded-full bg-slate-700 accent-primary-600"
         [value]="netCible()"
         (input)="setNet($event)"
       />
@@ -55,10 +55,10 @@
   <!-- Foyer fiscal (situation personnelle) -->
   <section class="mat-card p-5">
     <header class="mb-1 flex items-center gap-2">
-      <span class="material-symbols-rounded text-primary-600">diversity_3</span>
-      <h2 class="text-lg font-semibold text-slate-800">Foyer fiscal</h2>
+      <span class="material-symbols-rounded text-primary-400">diversity_3</span>
+      <h2 class="text-lg font-semibold text-slate-100">Foyer fiscal</h2>
     </header>
-    <p class="mb-4 text-sm text-slate-500">
+    <p class="mb-4 text-sm text-slate-400">
       Ces éléments font varier votre tranche d'imposition, donc l'impôt prélevé sur le
       salaire versé par la société.
     </p>
@@ -82,7 +82,7 @@
     </div>
     <p class="mt-2 text-[11px] leading-relaxed text-slate-400">
       Nombre de parts :
-      <a class="text-primary-600 hover:underline" target="_blank" rel="noopener noreferrer"
+      <a class="text-primary-400 hover:underline" target="_blank" rel="noopener noreferrer"
         href="https://www.economie.gouv.fr/particuliers/gerer-mon-impot-sur-le-revenu/quotient-familial-et-impot-sur-le-revenu-comment-ca">
         quotient familial (source)</a>.
       Les autres revenus se cumulent <em>sous</em> le salaire et remplissent les tranches
@@ -101,19 +101,19 @@
         type="checkbox" class="h-5 w-5 accent-primary-600"
         [checked]="mixteActif()" (change)="toggleMixte($event)"
       />
-      <span class="font-medium text-slate-800">Rémunération mixte (salaire + dividendes)</span>
+      <span class="font-medium text-slate-100">Rémunération mixte (salaire + dividendes)</span>
     </label>
 
     @if (mixteActif()) {
       @let mr = mixteResult();
       <div class="mt-4">
         <div class="mb-1 flex items-center justify-between text-sm">
-          <span class="text-slate-500">Salaire brut annuel</span>
-          <span class="font-semibold text-slate-800">{{ euro(mr.salaire.brut) }}</span>
+          <span class="text-slate-400">Salaire brut annuel</span>
+          <span class="font-semibold text-slate-100">{{ euro(mr.salaire.brut) }}</span>
         </div>
         <input
           type="range"
-          class="h-2 w-full cursor-pointer appearance-none rounded-full bg-primary-100 accent-primary-600"
+          class="h-2 w-full cursor-pointer appearance-none rounded-full bg-slate-700 accent-primary-600"
           [min]="brutMin()" [max]="brutMax()" step="500"
           [value]="salaireBrutMixte()" (input)="setSalaireBrutMixte($event)"
         />
@@ -122,14 +122,14 @@
           <span>max {{ euro(brutMax()) }} · 100 % salaire</span>
         </div>
         <p class="mt-3 flex flex-wrap items-center gap-2">
-          <span class="mat-chip bg-primary-50 text-primary-700">
+          <span class="mat-chip bg-primary-500/15 text-primary-300">
             {{ mr.trimestres }}/4 trimestres validés
           </span>
-          <span class="mat-chip bg-accent-50 text-accent-700">protection sociale ouverte</span>
+          <span class="mat-chip bg-accent-500/15 text-accent-300">protection sociale ouverte</span>
         </p>
       </div>
     } @else {
-      <p class="mt-2 text-sm text-slate-500">
+      <p class="mt-2 text-sm text-slate-400">
         Comparaison salaire pur vs dividende pur. Activez le mode mixte pour répartir la
         rémunération et garantir vos droits (retraite, sécurité sociale).
       </p>
@@ -148,57 +148,57 @@
       [class.ring-primary-500]="!mixteActif() && r.meilleur === 'salaire'"
     >
       <header class="mb-4 flex items-center gap-2">
-        <span class="material-symbols-rounded text-primary-600">badge</span>
-        <h2 class="text-lg font-semibold text-slate-800">
+        <span class="material-symbols-rounded text-primary-400">badge</span>
+        <h2 class="text-lg font-semibold text-slate-100">
           {{ mixteActif() ? 'Part salaire' : 'Rémunération en salaire' }}
         </h2>
       </header>
 
-      <p class="text-sm text-slate-500">Coût pour l'entreprise</p>
-      <p class="mb-3 text-3xl font-bold text-primary-700">{{ euro(sal.coutEntreprise) }}</p>
+      <p class="text-sm text-slate-400">Coût pour l'entreprise</p>
+      <p class="mb-3 text-3xl font-bold text-primary-300">{{ euro(sal.coutEntreprise) }}</p>
 
       <p class="mb-3 flex flex-wrap gap-2 text-sm">
-        <span class="mat-chip bg-primary-50 text-primary-700">{{ trimestres(sal.brut) }}/4 trimestres</span>
+        <span class="mat-chip bg-primary-500/15 text-primary-300">{{ trimestres(sal.brut) }}/4 trimestres</span>
         @if (sal.brut > 0) {
-          <span class="mat-chip bg-accent-50 text-accent-700">sécu ouverte</span>
+          <span class="mat-chip bg-accent-500/15 text-accent-300">sécu ouverte</span>
         } @else {
-          <span class="mat-chip bg-slate-100 text-slate-400">aucun droit</span>
+          <span class="mat-chip bg-slate-800 text-slate-400">aucun droit</span>
         }
       </p>
 
-      <dl class="divide-y divide-slate-100 text-sm">
+      <dl class="divide-y divide-slate-700 text-sm">
         <div class="flex justify-between py-2">
-          <dt class="text-slate-500">Impôt sur les sociétés</dt>
+          <dt class="text-slate-400">Impôt sur les sociétés</dt>
           <dd class="font-medium text-slate-400">0 € · déductible</dd>
         </div>
         <div class="flex justify-between py-2">
-          <dt class="text-slate-500">Salaire brut</dt>
+          <dt class="text-slate-400">Salaire brut</dt>
           <dd class="font-medium">{{ euro(sal.brut) }}</dd>
         </div>
         <div class="flex justify-between py-2">
-          <dt class="text-slate-500">Charges patronales</dt>
+          <dt class="text-slate-400">Charges patronales</dt>
           <dd class="font-medium">{{ euro(sal.chargesPatronales) }}</dd>
         </div>
         <div class="flex justify-between py-2">
-          <dt class="text-slate-500">Charges salariales</dt>
+          <dt class="text-slate-400">Charges salariales</dt>
           <dd class="font-medium">{{ euro(sal.chargesSalariales) }}</dd>
         </div>
         <div class="flex justify-between py-2">
-          <dt class="text-slate-500">Net avant impôt</dt>
+          <dt class="text-slate-400">Net avant impôt</dt>
           <dd class="font-medium">{{ euro(sal.netSocial) }}</dd>
         </div>
         <div class="flex justify-between py-2">
-          <dt class="text-slate-500">Impôt sur le revenu</dt>
+          <dt class="text-slate-400">Impôt sur le revenu</dt>
           <dd class="font-medium">{{ euro(sal.ir) }}</dd>
         </div>
         @if (mixteActif()) {
           <div class="flex justify-between py-2">
-            <dt class="text-slate-500">Net perçu (part salaire)</dt>
-            <dd class="font-semibold text-accent-600">{{ euro(sal.netPoche) }}</dd>
+            <dt class="text-slate-400">Net perçu (part salaire)</dt>
+            <dd class="font-semibold text-accent-400">{{ euro(sal.netPoche) }}</dd>
           </div>
         }
         <div class="flex justify-between py-2">
-          <dt class="text-slate-500">Taux de prélèvement global</dt>
+          <dt class="text-slate-400">Taux de prélèvement global</dt>
           <dd class="font-medium">{{ pct(sal.tauxPrelevementGlobal) }}</dd>
         </div>
       </dl>
@@ -216,44 +216,44 @@
       [class.ring-accent-500]="!mixteActif() && r.meilleur === 'dividende'"
     >
       <header class="mb-4 flex items-center gap-2">
-        <span class="material-symbols-rounded text-accent-600">payments</span>
-        <h2 class="text-lg font-semibold text-slate-800">
+        <span class="material-symbols-rounded text-accent-400">payments</span>
+        <h2 class="text-lg font-semibold text-slate-100">
           {{ mixteActif() ? 'Part dividendes' : 'Rémunération en dividendes' }}
         </h2>
       </header>
 
-      <p class="text-sm text-slate-500">Coût pour l'entreprise</p>
-      <p class="mb-3 text-3xl font-bold text-accent-600">{{ euro(div.coutEntreprise) }}</p>
+      <p class="text-sm text-slate-400">Coût pour l'entreprise</p>
+      <p class="mb-3 text-3xl font-bold text-accent-400">{{ euro(div.coutEntreprise) }}</p>
 
       <p class="mb-3 flex flex-wrap gap-2 text-sm">
-        <span class="mat-chip bg-slate-100 text-slate-400">0/4 trimestre · aucun droit</span>
+        <span class="mat-chip bg-slate-800 text-slate-400">0/4 trimestre · aucun droit</span>
       </p>
 
-      <dl class="divide-y divide-slate-100 text-sm">
+      <dl class="divide-y divide-slate-700 text-sm">
         <div class="flex justify-between py-2">
-          <dt class="text-slate-500">Bénéfice avant IS</dt>
+          <dt class="text-slate-400">Bénéfice avant IS</dt>
           <dd class="font-medium">{{ euro(div.beneficeAvantIS) }}</dd>
         </div>
         <div class="flex justify-between py-2">
-          <dt class="text-slate-500">Impôt sur les sociétés</dt>
+          <dt class="text-slate-400">Impôt sur les sociétés</dt>
           <dd class="font-medium">{{ euro(div.is) }}</dd>
         </div>
         <div class="flex justify-between py-2">
-          <dt class="text-slate-500">Dividende brut distribué</dt>
+          <dt class="text-slate-400">Dividende brut distribué</dt>
           <dd class="font-medium">{{ euro(div.dividendeBrut) }}</dd>
         </div>
         <div class="flex justify-between py-2">
-          <dt class="text-slate-500">PFU (flat tax)</dt>
+          <dt class="text-slate-400">PFU (flat tax)</dt>
           <dd class="font-medium">{{ euro(div.pfu) }}</dd>
         </div>
         @if (mixteActif()) {
           <div class="flex justify-between py-2">
-            <dt class="text-slate-500">Net perçu (part dividendes)</dt>
-            <dd class="font-semibold text-accent-600">{{ euro(div.netPoche) }}</dd>
+            <dt class="text-slate-400">Net perçu (part dividendes)</dt>
+            <dd class="font-semibold text-accent-400">{{ euro(div.netPoche) }}</dd>
           </div>
         }
         <div class="flex justify-between py-2">
-          <dt class="text-slate-500">Taux de prélèvement global</dt>
+          <dt class="text-slate-400">Taux de prélèvement global</dt>
           <dd class="font-medium">{{ pct(div.tauxPrelevementGlobal) }}</dd>
         </div>
       </dl>
@@ -264,12 +264,12 @@
   @if (mixteActif()) {
     @let mr = mixteResult();
     <section class="mat-card flex items-center gap-4 p-5 ring-1 ring-primary-400">
-      <span class="material-symbols-rounded text-3xl text-primary-600">savings</span>
+      <span class="material-symbols-rounded text-3xl text-primary-400">savings</span>
       <div>
-        <p class="font-semibold text-slate-800">
+        <p class="font-semibold text-slate-100">
           Coût total du mix : {{ euro(mr.coutTotal) }} / an.
         </p>
-        <p class="text-sm text-slate-500">
+        <p class="text-sm text-slate-400">
           Vous validez {{ mr.trimestres }}/4 trimestres et ouvrez la protection sociale.
           Surcoût vs 100 % dividende :
           <strong>{{ euro(mr.coutTotal - r.dividende.coutEntreprise) }}</strong> / an.
@@ -285,25 +285,25 @@
     >
       <span
         class="material-symbols-rounded text-3xl"
-        [class.text-accent-600]="r.meilleur === 'dividende'"
-        [class.text-primary-600]="r.meilleur !== 'dividende'"
+        [class.text-accent-400]="r.meilleur === 'dividende'"
+        [class.text-primary-400]="r.meilleur !== 'dividende'"
       >
         {{ r.meilleur === 'egalite' ? 'balance' : 'recommend' }}
       </span>
       <div>
         @if (r.meilleur === 'dividende') {
-          <p class="font-semibold text-slate-800">
+          <p class="font-semibold text-slate-100">
             Les dividendes sont plus avantageux pour la société.
           </p>
         } @else if (r.meilleur === 'salaire') {
-          <p class="font-semibold text-slate-800">
+          <p class="font-semibold text-slate-100">
             Le salaire est plus avantageux pour la société.
           </p>
         } @else {
-          <p class="font-semibold text-slate-800">Les deux options se valent.</p>
+          <p class="font-semibold text-slate-100">Les deux options se valent.</p>
         }
         @if (r.meilleur !== 'egalite') {
-          <p class="text-sm text-slate-500">
+          <p class="text-sm text-slate-400">
             Économie sur le coût entreprise : <strong>{{ euro(r.economie) }}</strong> par an
             pour un même net dans la poche.
           </p>
@@ -314,24 +314,24 @@
 
   <!-- Graphes -->
   <section class="mat-card p-5">
-    <h3 class="mb-3 flex items-center gap-2 font-medium text-slate-700">
-      <span class="material-symbols-rounded text-primary-600">stacked_bar_chart</span>
+    <h3 class="mb-3 flex items-center gap-2 font-medium text-slate-200">
+      <span class="material-symbols-rounded text-primary-400">stacked_bar_chart</span>
       Composition du coût pour un net de {{ euro(netCible()) }}
     </h3>
     <div echarts [options]="breakdownOptions()" class="h-72 w-full"></div>
   </section>
 
   <section class="mat-card p-5">
-    <h3 class="mb-3 flex items-center gap-2 font-medium text-slate-700">
-      <span class="material-symbols-rounded text-primary-600">show_chart</span>
+    <h3 class="mb-3 flex items-center gap-2 font-medium text-slate-200">
+      <span class="material-symbols-rounded text-primary-400">show_chart</span>
       Coût entreprise selon le net visé
     </h3>
     <div echarts [options]="curveOptions()" class="h-80 w-full"></div>
   </section>
 
   <!-- Hypothèses -->
-  <section class="mat-card p-5 text-sm text-slate-500">
-    <h3 class="mb-2 flex items-center gap-2 font-medium text-slate-700">
+  <section class="mat-card p-5 text-sm text-slate-400">
+    <h3 class="mb-2 flex items-center gap-2 font-medium text-slate-200">
       <span class="material-symbols-rounded text-slate-400">info</span>
       Hypothèses du modèle
     </h3>

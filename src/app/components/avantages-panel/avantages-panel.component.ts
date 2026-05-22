@@ -17,13 +17,13 @@ type GenericKey = 'mutuelle' | 'prevoyance' | 'retraite' | 'chequesVacances' | '
         (click)="open.set(!open())"
         class="flex w-full items-center justify-between px-5 py-4 text-left"
       >
-        <span class="flex items-center gap-2 font-medium text-slate-700">
-          <span class="material-symbols-rounded text-accent-600">card_giftcard</span>
+        <span class="flex items-center gap-2 font-medium text-slate-200">
+          <span class="material-symbols-rounded text-accent-400">card_giftcard</span>
           Avantages payés par la société (réservés au salaire)
         </span>
         <span class="flex items-center gap-3">
           @if (totalEconomie() > 0) {
-            <span class="mat-chip bg-accent-50 text-accent-700">
+            <span class="mat-chip bg-accent-500/15 text-accent-300">
               + {{ euro(totalEconomie()) }} / an
             </span>
           }
@@ -34,8 +34,8 @@ type GenericKey = 'mutuelle' | 'prevoyance' | 'retraite' | 'chequesVacances' | '
       </button>
 
       @if (open()) {
-        <div class="space-y-3 border-t border-slate-100 px-5 py-5">
-          <p class="text-sm text-slate-500">
+        <div class="space-y-3 border-t border-slate-700 px-5 py-5">
+          <p class="text-sm text-slate-400">
             Ces avantages ne sont possibles qu'avec un <strong>salaire</strong> : la société
             les finance (charge déductible, exonérée dans les limites), donc bien moins cher
             que de les payer avec votre argent net. Chaque avantage est optionnel.
@@ -44,7 +44,7 @@ type GenericKey = 'mutuelle' | 'prevoyance' | 'retraite' | 'chequesVacances' | '
           <!-- Avantages génériques (montant annuel) -->
           @for (key of genericKeys; track key) {
             @let av = avantages()[key];
-            <div class="rounded-lg border border-slate-200 p-3">
+            <div class="rounded-lg border border-slate-700 p-3">
               <div class="flex items-center justify-between gap-2">
                 <div class="flex items-center gap-1.5">
                   <label class="flex cursor-pointer items-center gap-2">
@@ -53,12 +53,12 @@ type GenericKey = 'mutuelle' | 'prevoyance' | 'retraite' | 'chequesVacances' | '
                       [checked]="av.actif"
                       (change)="patchAv(key, { actif: checked($event) })"
                     />
-                    <span class="font-medium text-slate-700">{{ labels[key] }}</span>
+                    <span class="font-medium text-slate-200">{{ labels[key] }}</span>
                   </label>
                   <ng-container [ngTemplateOutlet]="infoIcon" [ngTemplateOutletContext]="{ text: descriptions[key] }" />
                 </div>
                 <a
-                  class="inline-flex items-center gap-1 text-[11px] text-primary-600 hover:underline"
+                  class="inline-flex items-center gap-1 text-[11px] text-primary-400 hover:underline"
                   [href]="refs[key]" target="_blank" rel="noopener noreferrer"
                 >
                   source officielle
@@ -95,7 +95,7 @@ type GenericKey = 'mutuelle' | 'prevoyance' | 'retraite' | 'chequesVacances' | '
           }
 
           <!-- Titres-restaurant -->
-          <div class="rounded-lg border border-slate-200 p-3">
+          <div class="rounded-lg border border-slate-700 p-3">
             <div class="flex items-center justify-between gap-2">
               <div class="flex items-center gap-1.5">
                 <label class="flex cursor-pointer items-center gap-2">
@@ -104,12 +104,12 @@ type GenericKey = 'mutuelle' | 'prevoyance' | 'retraite' | 'chequesVacances' | '
                     [checked]="avantages().ticketsResto.actif"
                     (change)="patchTicket({ actif: checked($event) })"
                   />
-                  <span class="font-medium text-slate-700">Titres-restaurant</span>
+                  <span class="font-medium text-slate-200">Titres-restaurant</span>
                 </label>
                 <ng-container [ngTemplateOutlet]="infoIcon" [ngTemplateOutletContext]="{ text: descriptions['ticketsResto'] }" />
               </div>
               <a
-                class="inline-flex items-center gap-1 text-[11px] text-primary-600 hover:underline"
+                class="inline-flex items-center gap-1 text-[11px] text-primary-400 hover:underline"
                 [href]="refs['ticketsResto']" target="_blank" rel="noopener noreferrer"
               >
                 source officielle
@@ -157,7 +157,7 @@ type GenericKey = 'mutuelle' | 'prevoyance' | 'retraite' | 'chequesVacances' | '
           </div>
 
           <!-- Autre -->
-          <div class="rounded-lg border border-slate-200 p-3">
+          <div class="rounded-lg border border-slate-700 p-3">
             <div class="flex items-center gap-1.5">
               <label class="flex cursor-pointer items-center gap-2">
                 <input
@@ -165,7 +165,7 @@ type GenericKey = 'mutuelle' | 'prevoyance' | 'retraite' | 'chequesVacances' | '
                   [checked]="avantages().autre.actif"
                   (change)="patchAutre({ actif: checked($event) })"
                 />
-                <span class="font-medium text-slate-700">Autre avantage exonéré</span>
+                <span class="font-medium text-slate-200">Autre avantage exonéré</span>
               </label>
               <ng-container [ngTemplateOutlet]="infoIcon" [ngTemplateOutletContext]="{ text: descriptions['autre'] }" />
             </div>
@@ -204,7 +204,7 @@ type GenericKey = 'mutuelle' | 'prevoyance' | 'retraite' | 'chequesVacances' | '
           </div>
 
           @if (totalEconomie() > 0) {
-            <p class="rounded-lg bg-accent-50 px-4 py-3 text-sm text-accent-800">
+            <p class="rounded-lg bg-accent-500/15 px-4 py-3 text-sm text-accent-300">
               Économie totale en passant par la société :
               <strong>{{ euro(totalEconomie()) }} / an</strong> (à pouvoir d'achat égal).
             </p>
@@ -222,7 +222,7 @@ type GenericKey = 'mutuelle' | 'prevoyance' | 'retraite' | 'chequesVacances' | '
 
     <ng-template #infoIcon let-text="text">
       <span class="group relative inline-flex">
-        <span tabindex="0" class="material-symbols-rounded cursor-help text-[16px] leading-none text-slate-400 hover:text-primary-600">info</span>
+        <span tabindex="0" class="material-symbols-rounded cursor-help text-[16px] leading-none text-slate-400 hover:text-primary-400">info</span>
         <span class="pointer-events-none absolute left-0 top-6 z-20 hidden w-56 rounded-lg bg-slate-800 px-3 py-2 text-[11px] font-normal leading-snug text-white shadow-lg group-hover:block group-focus-within:block">
           {{ text }}
         </span>
@@ -230,12 +230,12 @@ type GenericKey = 'mutuelle' | 'prevoyance' | 'retraite' | 'chequesVacances' | '
     </ng-template>
 
     <ng-template #resultLine let-res="res">
-      <div class="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-2 text-sm">
-        <span class="text-slate-500">
-          Via société : <strong class="text-slate-700">{{ euro(res.coutSociete) }}</strong>
-          · via perso : <strong class="text-slate-700">{{ euro(res.coutPerso) }}</strong>
+      <div class="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-slate-700 pt-2 text-sm">
+        <span class="text-slate-400">
+          Via société : <strong class="text-slate-200">{{ euro(res.coutSociete) }}</strong>
+          · via perso : <strong class="text-slate-200">{{ euro(res.coutPerso) }}</strong>
         </span>
-        <span class="mat-chip bg-accent-50 text-accent-700">économie {{ euro(res.economie) }}</span>
+        <span class="mat-chip bg-accent-500/15 text-accent-300">économie {{ euro(res.economie) }}</span>
       </div>
     </ng-template>
   `,

@@ -11,8 +11,8 @@ import { FiscalParams } from '../../models/fiscal.model';
         (click)="open.set(!open())"
         class="flex w-full items-center justify-between px-5 py-4 text-left"
       >
-        <span class="flex items-center gap-2 font-medium text-slate-700">
-          <span class="material-symbols-rounded text-primary-600">tune</span>
+        <span class="flex items-center gap-2 font-medium text-slate-200">
+          <span class="material-symbols-rounded text-primary-400">tune</span>
           Paramètres fiscaux (tout est ajustable)
         </span>
         <span class="material-symbols-rounded text-slate-400">
@@ -21,15 +21,15 @@ import { FiscalParams } from '../../models/fiscal.model';
       </button>
 
       @if (open()) {
-        <div class="space-y-6 border-t border-slate-100 px-5 py-5">
+        <div class="space-y-6 border-t border-slate-700 px-5 py-5">
           <!-- Dividendes -->
           <div>
             <div class="mb-3 flex items-center justify-between gap-2">
-              <h3 class="text-xs font-semibold uppercase tracking-wide text-accent-600">
+              <h3 class="text-xs font-semibold uppercase tracking-wide text-accent-400">
                 Dividendes
               </h3>
               <a
-                class="inline-flex items-center gap-1 text-[11px] text-primary-600 hover:underline"
+                class="inline-flex items-center gap-1 text-[11px] text-primary-400 hover:underline"
                 href="https://entreprendre.service-public.fr/vosdroits/F32963"
                 target="_blank" rel="noopener noreferrer"
               >
@@ -55,11 +55,11 @@ import { FiscalParams } from '../../models/fiscal.model';
           <!-- IS -->
           <div>
             <div class="mb-3 flex items-center justify-between gap-2">
-              <h3 class="text-xs font-semibold uppercase tracking-wide text-accent-600">
+              <h3 class="text-xs font-semibold uppercase tracking-wide text-accent-400">
                 Impôt sur les sociétés (IS)
               </h3>
               <a
-                class="inline-flex items-center gap-1 text-[11px] text-primary-600 hover:underline"
+                class="inline-flex items-center gap-1 text-[11px] text-primary-400 hover:underline"
                 href="https://www.service-public.fr/professionnels-entreprises/vosdroits/F23575"
                 target="_blank" rel="noopener noreferrer"
               >
@@ -92,11 +92,11 @@ import { FiscalParams } from '../../models/fiscal.model';
           <!-- Charges sociales -->
           <div>
             <div class="mb-3 flex items-center justify-between gap-2">
-              <h3 class="text-xs font-semibold uppercase tracking-wide text-accent-600">
+              <h3 class="text-xs font-semibold uppercase tracking-wide text-accent-400">
                 Charges sociales SASU (% du brut)
               </h3>
               <a
-                class="inline-flex items-center gap-1 text-[11px] text-primary-600 hover:underline"
+                class="inline-flex items-center gap-1 text-[11px] text-primary-400 hover:underline"
                 href="https://www.urssaf.fr/portail/home/employeur/creer/choisir-une-forme-juridique/le-statut-du-dirigeant/les-dirigeants-assimiles-salarie.html"
                 target="_blank" rel="noopener noreferrer"
               >
@@ -123,11 +123,11 @@ import { FiscalParams } from '../../models/fiscal.model';
           <!-- IR : barème + abattement -->
           <div>
             <div class="mb-3 flex items-center justify-between gap-2">
-              <h3 class="text-xs font-semibold uppercase tracking-wide text-accent-600">
+              <h3 class="text-xs font-semibold uppercase tracking-wide text-accent-400">
                 Barème de l'impôt sur le revenu
               </h3>
               <a
-                class="inline-flex items-center gap-1 text-[11px] text-primary-600 hover:underline"
+                class="inline-flex items-center gap-1 text-[11px] text-primary-400 hover:underline"
                 href="https://www.service-public.fr/particuliers/vosdroits/F1419"
                 target="_blank" rel="noopener noreferrer"
               >
@@ -138,9 +138,9 @@ import { FiscalParams } from '../../models/fiscal.model';
 
             <div>
               <span class="mat-label">Barème IR (par part)</span>
-              <div class="overflow-hidden rounded-lg border border-slate-200">
+              <div class="overflow-hidden rounded-lg border border-slate-700">
                 <table class="w-full text-sm">
-                  <thead class="bg-slate-50 text-slate-500">
+                  <thead class="bg-slate-800 text-slate-400">
                     <tr>
                       <th class="px-3 py-2 text-left font-medium">Jusqu'à (€)</th>
                       <th class="px-3 py-2 text-left font-medium">Taux (%)</th>
@@ -148,20 +148,20 @@ import { FiscalParams } from '../../models/fiscal.model';
                   </thead>
                   <tbody>
                     @for (b of params().baremeIR; track $index) {
-                      <tr class="border-t border-slate-100">
+                      <tr class="border-t border-slate-700">
                         <td class="px-3 py-1.5">
                           @if (b.upTo === null) {
                             <span class="text-slate-400">au-delà</span>
                           } @else {
                             <input type="number" step="100"
-                              class="w-full rounded border border-slate-200 px-2 py-1"
+                              class="w-full rounded border border-slate-700 px-2 py-1"
                               [value]="b.upTo"
                               (input)="patchBracket($index, { upTo: num($event) })" />
                           }
                         </td>
                         <td class="px-3 py-1.5">
                           <input type="number" step="0.1"
-                            class="w-full rounded border border-slate-200 px-2 py-1"
+                            class="w-full rounded border border-slate-700 px-2 py-1"
                             [value]="pct(b.rate)"
                             (input)="patchBracket($index, { rate: num($event) / 100 })" />
                         </td>
@@ -175,7 +175,7 @@ import { FiscalParams } from '../../models/fiscal.model';
             <p class="mt-2 text-[11px] leading-relaxed text-slate-400">
               Un abattement de 10 % pour frais professionnels (plafonné à
               {{ nf(params().abattementSalairePlafond) }} €) est appliqué automatiquement —
-              <a class="text-primary-600 hover:underline" target="_blank" rel="noopener noreferrer"
+              <a class="text-primary-400 hover:underline" target="_blank" rel="noopener noreferrer"
                 href="https://www.impots.gouv.fr/particulier/questions/comment-puis-je-beneficier-de-la-deduction-forfaitaire-de-10">
                 source</a>.
             </p>

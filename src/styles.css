@@ -3,32 +3,61 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --bg-primary: #161b22;
+    --bg-secondary: #21262d;
+    --border-color: #30363d;
+    --text-primary: #e6edf3;
+    --text-secondary: #c9d1d9;
+    --text-muted: #8b949e;
+  }
   html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
   body {
-    @apply bg-slate-100 text-slate-800 font-sans antialiased;
+    @apply font-sans antialiased;
+    color: var(--text-primary);
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+  input,
+  select,
+  textarea {
+    color: var(--text-primary);
+  }
+  input::placeholder {
+    color: var(--text-muted);
   }
 }
 
 @layer components {
   .mat-card {
-    @apply rounded-xl bg-white shadow-card transition-shadow duration-200;
+    @apply rounded-xl border transition-shadow duration-200;
+    background-color: var(--bg-primary);
+    border-color: var(--border-color);
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
   }
   .mat-card:hover {
-    @apply shadow-card-hover;
+    box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.5);
   }
   .mat-field {
     @apply relative;
   }
   .mat-input {
-    @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-base
-           text-slate-900 outline-none transition
-           focus:border-primary-500 focus:ring-2 focus:ring-primary-200;
+    @apply w-full rounded-lg px-3 py-2.5 text-base outline-none transition;
+    background-color: #0d1117;
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+  }
+  .mat-input:focus {
+    border-color: #58a6ff;
+    box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.25);
   }
   .mat-label {
-    @apply mb-1 block text-sm font-medium text-slate-600;
+    @apply mb-1 block text-sm font-medium;
+    color: var(--text-secondary);
   }
   .mat-chip {
     @apply inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-medium;
@@ -38,10 +67,18 @@
            font-semibold transition active:scale-[0.98] disabled:opacity-50;
   }
   .mat-btn-primary {
-    @apply mat-btn bg-primary-600 text-white shadow-sm hover:bg-primary-700;
+    @apply mat-btn text-white;
+    background-color: #1f6feb;
+  }
+  .mat-btn-primary:hover {
+    background-color: #388bfd;
   }
   .mat-btn-ghost {
-    @apply mat-btn text-primary-700 hover:bg-primary-50;
+    @apply mat-btn;
+    color: #58a6ff;
+  }
+  .mat-btn-ghost:hover {
+    background-color: rgba(88, 166, 255, 0.12);
   }
 }
 
