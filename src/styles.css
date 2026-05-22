@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  body {
+    @apply bg-slate-100 text-slate-800 font-sans antialiased;
+  }
+}
+
+@layer components {
+  .mat-card {
+    @apply rounded-xl bg-white shadow-card transition-shadow duration-200;
+  }
+  .mat-card:hover {
+    @apply shadow-card-hover;
+  }
+  .mat-field {
+    @apply relative;
+  }
+  .mat-input {
+    @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-base
+           text-slate-900 outline-none transition
+           focus:border-primary-500 focus:ring-2 focus:ring-primary-200;
+  }
+  .mat-label {
+    @apply mb-1 block text-sm font-medium text-slate-600;
+  }
+  .mat-chip {
+    @apply inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-medium;
+  }
+  .mat-btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm
+           font-semibold transition active:scale-[0.98] disabled:opacity-50;
+  }
+  .mat-btn-primary {
+    @apply mat-btn bg-primary-600 text-white shadow-sm hover:bg-primary-700;
+  }
+  .mat-btn-ghost {
+    @apply mat-btn text-primary-700 hover:bg-primary-50;
+  }
+}
+
+/* Material Symbols sizing */
+.material-symbols-rounded {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  font-feature-settings: 'liga';
+  vertical-align: middle;
+  user-select: none;
+}

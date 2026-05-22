@@ -1,0 +1,199 @@
+<div class="mx-auto max-w-5xl space-y-6 px-4 py-6 sm:py-8">
+  <!-- Saisie du net visé -->
+  <section class="mat-card p-5 sm:p-6">
+    <label for="netCible" class="mat-label text-base">
+      Net annuel souhaité dans la poche
+    </label>
+    <p class="mb-4 text-sm text-slate-500">
+      Montant qu'il vous reste réellement après charges et impôts. On calcule le coût
+      correspondant pour la société, en salaire puis en dividendes.
+    </p>
+
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
+      <div class="relative w-full sm:w-64">
+        <input
+          id="netCible"
+          type="number"
+          step="1000"
+          min="0"
+          class="mat-input pr-10 text-2xl font-semibold"
+          [value]="netCible()"
+          (input)="setNet($event)"
+        />
+        <span class="pointer-events-none absolute right-3 top-3.5 text-slate-400">€</span>
+      </div>
+
+      <input
+        type="range"
+        min="0"
+        max="150000"
+        step="1000"
+        class="h-2 w-full cursor-pointer appearance-none rounded-full bg-primary-100 accent-primary-600"
+        [value]="netCible()"
+        (input)="setNet($event)"
+      />
+    </div>
+  </section>
+
+  <!-- Recommandation -->
+  @let r = result();
+  <section
+    class="mat-card flex items-center gap-4 p-5"
+    [class.ring-1]="true"
+    [class.ring-accent-400]="r.meilleur === 'dividende'"
+    [class.ring-primary-400]="r.meilleur === 'salaire'"
+  >
+    <span
+      class="material-symbols-rounded text-3xl"
+      [class.text-accent-600]="r.meilleur === 'dividende'"
+      [class.text-primary-600]="r.meilleur !== 'dividende'"
+    >
+      {{ r.meilleur === 'egalite' ? 'balance' : 'recommend' }}
+    </span>
+    <div>
+      @if (r.meilleur === 'dividende') {
+        <p class="font-semibold text-slate-800">
+          Les dividendes sont plus avantageux pour la société.
+        </p>
+      } @else if (r.meilleur === 'salaire') {
+        <p class="font-semibold text-slate-800">
+          Le salaire est plus avantageux pour la société.
+        </p>
+      } @else {
+        <p class="font-semibold text-slate-800">Les deux options se valent.</p>
+      }
+      @if (r.meilleur !== 'egalite') {
+        <p class="text-sm text-slate-500">
+          Économie sur le coût entreprise : <strong>{{ euro(r.economie) }}</strong> par an
+          pour un même net dans la poche.
+        </p>
+      }
+    </div>
+  </section>
+
+  <!-- Deux colonnes de résultats -->
+  <div class="grid gap-6 md:grid-cols-2">
+    <!-- Salaire -->
+    <section
+      class="mat-card p-5"
+      [class.ring-2]="r.meilleur === 'salaire'"
+      [class.ring-primary-500]="r.meilleur === 'salaire'"
+    >
+      <header class="mb-4 flex items-center gap-2">
+        <span class="material-symbols-rounded text-primary-600">badge</span>
+        <h2 class="text-lg font-semibold text-slate-800">Rémunération en salaire</h2>
+      </header>
+
+      <p class="text-sm text-slate-500">Coût total pour l'entreprise</p>
+      <p class="mb-4 text-3xl font-bold text-primary-700">{{ euro(r.salaire.coutEntreprise) }}</p>
+
+      <dl class="divide-y divide-slate-100 text-sm">
+        <div class="flex justify-between py-2">
+          <dt class="text-slate-500">Salaire brut</dt>
+          <dd class="font-medium">{{ euro(r.salaire.brut) }}</dd>
+        </div>
+        <div class="flex justify-between py-2">
+          <dt class="text-slate-500">Charges patronales</dt>
+          <dd class="font-medium">{{ euro(r.salaire.chargesPatronales) }}</dd>
+        </div>
+        <div class="flex justify-between py-2">
+          <dt class="text-slate-500">Charges salariales</dt>
+          <dd class="font-medium">{{ euro(r.salaire.chargesSalariales) }}</dd>
+        </div>
+        <div class="flex justify-between py-2">
+          <dt class="text-slate-500">Net avant impôt</dt>
+          <dd class="font-medium">{{ euro(r.salaire.netSocial) }}</dd>
+        </div>
+        <div class="flex justify-between py-2">
+          <dt class="text-slate-500">Impôt sur le revenu</dt>
+          <dd class="font-medium">{{ euro(r.salaire.ir) }}</dd>
+        </div>
+        <div class="flex justify-between py-2">
+          <dt class="font-medium text-slate-700">Net dans la poche</dt>
+          <dd class="font-semibold text-accent-600">{{ euro(r.salaire.netPoche) }}</dd>
+        </div>
+        <div class="flex justify-between py-2">
+          <dt class="text-slate-500">Taux de prélèvement global</dt>
+          <dd class="font-medium">{{ pct(r.salaire.tauxPrelevementGlobal) }}</dd>
+        </div>
+      </dl>
+    </section>
+
+    <!-- Dividende -->
+    <section
+      class="mat-card p-5"
+      [class.ring-2]="r.meilleur === 'dividende'"
+      [class.ring-accent-500]="r.meilleur === 'dividende'"
+    >
+      <header class="mb-4 flex items-center gap-2">
+        <span class="material-symbols-rounded text-accent-600">payments</span>
+        <h2 class="text-lg font-semibold text-slate-800">Rémunération en dividendes</h2>
+      </header>
+
+      <p class="text-sm text-slate-500">Coût total pour l'entreprise</p>
+      <p class="mb-4 text-3xl font-bold text-accent-600">{{ euro(r.dividende.coutEntreprise) }}</p>
+
+      <dl class="divide-y divide-slate-100 text-sm">
+        <div class="flex justify-between py-2">
+          <dt class="text-slate-500">Bénéfice avant IS</dt>
+          <dd class="font-medium">{{ euro(r.dividende.beneficeAvantIS) }}</dd>
+        </div>
+        <div class="flex justify-between py-2">
+          <dt class="text-slate-500">Impôt sur les sociétés</dt>
+          <dd class="font-medium">{{ euro(r.dividende.is) }}</dd>
+        </div>
+        <div class="flex justify-between py-2">
+          <dt class="text-slate-500">Dividende brut distribué</dt>
+          <dd class="font-medium">{{ euro(r.dividende.dividendeBrut) }}</dd>
+        </div>
+        <div class="flex justify-between py-2">
+          <dt class="text-slate-500">PFU (flat tax)</dt>
+          <dd class="font-medium">{{ euro(r.dividende.pfu) }}</dd>
+        </div>
+        <div class="flex justify-between py-2">
+          <dt class="font-medium text-slate-700">Net dans la poche</dt>
+          <dd class="font-semibold text-accent-600">{{ euro(r.dividende.netPoche) }}</dd>
+        </div>
+        <div class="flex justify-between py-2">
+          <dt class="text-slate-500">Taux de prélèvement global</dt>
+          <dd class="font-medium">{{ pct(r.dividende.tauxPrelevementGlobal) }}</dd>
+        </div>
+      </dl>
+    </section>
+  </div>
+
+  <!-- Graphes -->
+  <section class="mat-card p-5">
+    <h3 class="mb-3 flex items-center gap-2 font-medium text-slate-700">
+      <span class="material-symbols-rounded text-primary-600">stacked_bar_chart</span>
+      Composition du coût pour un net de {{ euro(netCible()) }}
+    </h3>
+    <div echarts [options]="breakdownOptions()" class="h-72 w-full"></div>
+  </section>
+
+  <section class="mat-card p-5">
+    <h3 class="mb-3 flex items-center gap-2 font-medium text-slate-700">
+      <span class="material-symbols-rounded text-primary-600">show_chart</span>
+      Coût entreprise selon le net visé
+    </h3>
+    <div echarts [options]="curveOptions()" class="h-80 w-full"></div>
+  </section>
+
+  <!-- Paramètres -->
+  <app-settings-panel [(params)]="params" (reset)="resetParams()" />
+
+  <!-- Hypothèses -->
+  <section class="mat-card p-5 text-sm text-slate-500">
+    <h3 class="mb-2 flex items-center gap-2 font-medium text-slate-700">
+      <span class="material-symbols-rounded text-slate-400">info</span>
+      Hypothèses du modèle
+    </h3>
+    <ul class="list-disc space-y-1 pl-5">
+      <li>Statut SASU : président assimilé salarié (charges sociales forfaitaires sur le brut).</li>
+      <li>Dividendes soumis au PFU ({{ pct(params().tauxPFU) }}), non ajoutés au barème de l'IR.</li>
+      <li>IR du salaire : barème + parts, sans décote ni plafonnement du quotient familial.</li>
+      <li>Tous les taux sont ajustables dans le panneau « Paramètres fiscaux ».</li>
+      <li>Outil pédagogique : ne remplace pas l'avis d'un expert-comptable.</li>
+    </ul>
+  </section>
+</div>
