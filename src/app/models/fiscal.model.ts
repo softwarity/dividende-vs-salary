@@ -146,7 +146,7 @@ export interface AvantageResult {
 export const DEFAULT_AVANTAGES: AvantagesState = {
   mutuelle: { actif: false, montantAnnuel: 1200, partEmployeur: 1, plafondExoAnnuel: 1800 },
   prevoyance: { actif: false, montantAnnuel: 600, partEmployeur: 1, plafondExoAnnuel: 1500 },
-  retraite: { actif: false, montantAnnuel: 2000, partEmployeur: 1, plafondExoAnnuel: 3845 },
+  retraite: { actif: false, montantAnnuel: 2000, partEmployeur: 1, plafondExoAnnuel: 2403 },
   ticketsResto: {
     actif: false,
     valeurFaciale: 10,
@@ -155,6 +155,6 @@ export const DEFAULT_AVANTAGES: AvantagesState = {
     plafondExoTitre: 7.32,
   },
   chequesVacances: { actif: false, montantAnnuel: 500, partEmployeur: 1, plafondExoAnnuel: 547 },
-  cesu: { actif: false, montantAnnuel: 1000, partEmployeur: 1, plafondExoAnnuel: 2540 },
+  cesu: { actif: false, montantAnnuel: 1000, partEmployeur: 1, plafondExoAnnuel: 2591 },
   autre: { actif: false, libelle: 'Autre avantage', montantAnnuel: 0, partEmployeur: 1, plafondExoAnnuel: 0 },
 };

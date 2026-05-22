@@ -45,14 +45,23 @@ type GenericKey = 'mutuelle' | 'prevoyance' | 'retraite' | 'chequesVacances' | '
           @for (key of genericKeys; track key) {
             @let av = avantages()[key];
             <div class="rounded-lg border border-slate-200 p-3">
-              <label class="flex cursor-pointer items-center gap-2">
-                <input
-                  type="checkbox" class="h-4 w-4 accent-accent-600"
-                  [checked]="av.actif"
-                  (change)="patchAv(key, { actif: checked($event) })"
-                />
-                <span class="font-medium text-slate-700">{{ labels[key] }}</span>
-              </label>
+              <div class="flex items-center justify-between gap-2">
+                <label class="flex cursor-pointer items-center gap-2">
+                  <input
+                    type="checkbox" class="h-4 w-4 accent-accent-600"
+                    [checked]="av.actif"
+                    (change)="patchAv(key, { actif: checked($event) })"
+                  />
+                  <span class="font-medium text-slate-700">{{ labels[key] }}</span>
+                </label>
+                <a
+                  class="inline-flex items-center gap-1 text-[11px] text-primary-600 hover:underline"
+                  [href]="refs[key]" target="_blank" rel="noopener noreferrer"
+                >
+                  source officielle
+                  <span class="material-symbols-rounded text-[13px]">open_in_new</span>
+                </a>
+              </div>
 
               @if (av.actif) {
                 <div class="mt-3 grid gap-3 sm:grid-cols-3">
@@ -84,16 +93,31 @@ type GenericKey = 'mutuelle' | 'prevoyance' | 'retraite' | 'chequesVacances' | '
 
           <!-- Titres-restaurant -->
           <div class="rounded-lg border border-slate-200 p-3">
-            <label class="flex cursor-pointer items-center gap-2">
-              <input
-                type="checkbox" class="h-4 w-4 accent-accent-600"
-                [checked]="avantages().ticketsResto.actif"
-                (change)="patchTicket({ actif: checked($event) })"
-              />
-              <span class="font-medium text-slate-700">Titres-restaurant</span>
-            </label>
+            <div class="flex items-center justify-between gap-2">
+              <label class="flex cursor-pointer items-center gap-2">
+                <input
+                  type="checkbox" class="h-4 w-4 accent-accent-600"
+                  [checked]="avantages().ticketsResto.actif"
+                  (change)="patchTicket({ actif: checked($event) })"
+                />
+                <span class="font-medium text-slate-700">Titres-restaurant</span>
+              </label>
+              <a
+                class="inline-flex items-center gap-1 text-[11px] text-primary-600 hover:underline"
+                [href]="refs['ticketsResto']" target="_blank" rel="noopener noreferrer"
+              >
+                source officielle
+                <span class="material-symbols-rounded text-[13px]">open_in_new</span>
+              </a>
+            </div>
             @if (avantages().ticketsResto.actif) {
               @let t = avantages().ticketsResto;
+              <p class="mt-2 text-[11px] leading-relaxed text-slate-400">
+                La part société doit être <strong>entre 50 % et 60 %</strong> de la valeur du
+                titre (sinon plus d'exonération), et est exonérée jusqu'à
+                {{ t.plafondExoTitre }} €/titre (2026). Valeur faciale optimale :
+                12,20 – 14,64 €.
+              </p>
               <div class="mt-3 grid gap-3 sm:grid-cols-4">
                 <label class="mat-field">
                   <span class="mat-label">Valeur / titre (€)</span>
@@ -109,7 +133,7 @@ type GenericKey = 'mutuelle' | 'prevoyance' | 'retraite' | 'chequesVacances' | '
                 </label>
                 <label class="mat-field">
                   <span class="mat-label">Part société (%)</span>
-                  <input type="number" step="1" class="mat-input"
+                  <input type="number" step="1" min="50" max="60" class="mat-input"
                     [value]="pct(t.partEmployeur)"
                     (input)="patchTicket({ partEmployeur: num($event) / 100 })" />
                 </label>
@@ -214,6 +238,14 @@ export class AvantagesPanelComponent {
     retraite: 'Complémentaire retraite',
     chequesVacances: 'Chèques-vacances',
     cesu: 'CESU préfinancé (garde, aide à domicile)',
+  };
+  readonly refs: Record<string, string> = {
+    mutuelle: 'https://www.urssaf.fr/accueil/employeur/embaucher-gerer-salaries/embaucher/complementaire-frais-sante.html',
+    prevoyance: 'https://www.urssaf.fr/accueil/employeur/embaucher-gerer-salaries/embaucher/prevoyance-complementaire.html',
+    retraite: 'https://www.urssaf.fr/portail/home/employeur/calculer-les-cotisations/les-elements-a-prendre-en-compte/les-retraites/les-contributions-patronales-de.html',
+    chequesVacances: 'https://www.urssaf.fr/portail/home/employeur/calculer-les-cotisations/les-elements-a-prendre-en-compte/les-prestations-liees-aux-activi/les-prestations-non-soumises-a-c/les-cheques-vacances.html',
+    cesu: 'https://www.cesu.urssaf.fr/info/accueil/s-informer-sur-le-cesu/tout-savoir/le-cesu-prefinance-quest-ce-que.html',
+    ticketsResto: 'https://www.urssaf.fr/portail/home/employeur/calculer-les-cotisations/les-elements-a-prendre-en-compte/les-frais-professionnels/les-titres-restaurant.html',
   };
 
   readonly results = computed(() => this.fiscal.calcAvantages(this.avantages(), this.params()));
