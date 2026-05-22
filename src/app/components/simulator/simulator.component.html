@@ -120,10 +120,6 @@
           <dd class="font-medium">{{ euro(r.salaire.ir) }}</dd>
         </div>
         <div class="flex justify-between py-2">
-          <dt class="font-medium text-slate-700">Net dans la poche</dt>
-          <dd class="font-semibold text-accent-600">{{ euro(r.salaire.netPoche) }}</dd>
-        </div>
-        <div class="flex justify-between py-2">
           <dt class="text-slate-500">Taux de prélèvement global</dt>
           <dd class="font-medium">{{ pct(r.salaire.tauxPrelevementGlobal) }}</dd>
         </div>
@@ -165,10 +161,6 @@
         <div class="flex justify-between py-2">
           <dt class="text-slate-500">PFU (flat tax)</dt>
           <dd class="font-medium">{{ euro(r.dividende.pfu) }}</dd>
-        </div>
-        <div class="flex justify-between py-2">
-          <dt class="font-medium text-slate-700">Net dans la poche</dt>
-          <dd class="font-semibold text-accent-600">{{ euro(r.dividende.netPoche) }}</dd>
         </div>
         <div class="flex justify-between py-2">
           <dt class="text-slate-500">Taux de prélèvement global</dt>
