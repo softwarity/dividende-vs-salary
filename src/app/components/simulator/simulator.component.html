@@ -35,6 +35,9 @@
     </div>
   </section>
 
+  <!-- Paramètres fiscaux (situation perso : parts, autres revenus, taux) -->
+  <app-settings-panel [(params)]="params" (reset)="resetParams()" />
+
   <!-- Recommandation -->
   @let r = result();
   <section
@@ -178,9 +181,6 @@
     </h3>
     <div echarts [options]="curveOptions()" class="h-80 w-full"></div>
   </section>
-
-  <!-- Paramètres -->
-  <app-settings-panel [(params)]="params" (reset)="resetParams()" />
 
   <!-- Hypothèses -->
   <section class="mat-card p-5 text-sm text-slate-500">

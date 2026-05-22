@@ -160,7 +160,7 @@ import { FiscalParams } from '../../models/fiscal.model';
 })
 export class SettingsPanelComponent {
   readonly params = model.required<FiscalParams>();
-  readonly open = signal(false);
+  readonly open = signal(true);
   reset = output<void>();
 
   pct(v: number): number {
