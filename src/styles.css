@@ -12,6 +12,7 @@
     --text-muted: #8b949e;
   }
   html {
+    color-scheme: dark;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
