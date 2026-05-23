@@ -82,6 +82,20 @@
   .mat-btn-ghost:hover {
     background-color: rgba(88, 166, 255, 0.12);
   }
+  .nav-button {
+    @apply inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm transition;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+  }
+  .nav-button:hover {
+    background-color: rgba(88, 166, 255, 0.1);
+    border-color: #58a6ff;
+    color: var(--text-primary);
+  }
+  .github-icon {
+    @apply h-[18px] w-[18px] shrink-0;
+  }
 }
 
 /* Material Symbols sizing */

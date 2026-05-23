@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { SimulatorComponent } from './components/simulator/simulator.component';
 
 @Component({
@@ -7,5 +7,6 @@ import { SimulatorComponent } from './components/simulator/simulator.component';
   imports: [SimulatorComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class AppComponent {}
