@@ -297,6 +297,10 @@
           <dd class="font-medium text-slate-400">0 € · déductible</dd>
         </div>
         <div class="flex justify-between py-2">
+          <dt class="text-slate-400">Économie d'IS (déductibilité)</dt>
+          <dd class="font-semibold text-accent-300">− {{ euro(economieISSalaire()) }}</dd>
+        </div>
+        <div class="flex justify-between py-2">
           <dt class="text-slate-400">Salaire brut</dt>
           <dd class="font-medium">{{ euro(sal.brut) }}</dd>
         </div>
