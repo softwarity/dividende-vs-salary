@@ -94,6 +94,12 @@ export class SimulatorComponent {
     return diff > 0 ? 'dividende' : 'salaire';
   });
 
+  // Économie d'IS apportée par la déductibilité du salaire + charges :
+  // IS qui serait dû si ce flux était un bénéfice taxable au lieu d'être déduit.
+  readonly economieISSalaire = computed(() =>
+    this.fiscal.is(this.salView().coutEntreprise, this.params()),
+  );
+
   constructor() {
     // Garde le brut du curseur dans les bornes valides.
     effect(() => {
