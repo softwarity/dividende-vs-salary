@@ -100,6 +100,11 @@ export class SimulatorComponent {
     this.fiscal.is(this.salView().coutEntreprise, this.params()),
   );
 
+  // Coût avant l'abattement (déductibilité) d'IS : coût entreprise + IS hypothétique.
+  readonly coutSalaireSansAbattementIS = computed(
+    () => this.salView().coutEntreprise + this.economieISSalaire(),
+  );
+
   constructor() {
     // Garde le brut du curseur dans les bornes valides.
     effect(() => {
