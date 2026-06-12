@@ -6,7 +6,9 @@ import {
   AvantagesState,
   DEFAULT_AVANTAGES,
   DEFAULT_PARAMS,
+  DividendeResult,
   FiscalParams,
+  SalaireResult,
 } from '../../models/fiscal.model';
 import { SettingsPanelComponent } from '../settings-panel/settings-panel.component';
 import { AvantagesPanelComponent } from '../avantages-panel/avantages-panel.component';
@@ -19,6 +21,18 @@ const clone = (p: FiscalParams): FiscalParams => ({
 
 const cloneAvantages = (a: AvantagesState): AvantagesState =>
   JSON.parse(JSON.stringify(a)) as AvantagesState;
+
+export type TypeRemu = 'dividende' | 'mixte' | 'salaire';
+
+const ZERO_SAL: SalaireResult = {
+  netPoche: 0, netSocial: 0, netImposable: 0, brut: 0,
+  chargesSalariales: 0, chargesPatronales: 0, ir: 0, coutEntreprise: 0,
+  tauxPrelevementGlobal: 0,
+};
+const ZERO_DIV: DividendeResult = {
+  netPoche: 0, pfu: 0, dividendeBrut: 0, is: 0,
+  beneficeAvantIS: 0, coutEntreprise: 0, tauxPrelevementGlobal: 0,
+};
 
 @Component({
   selector: 'app-simulator',
@@ -36,9 +50,17 @@ export class SimulatorComponent {
   readonly netCible = signal(40000);
   readonly avantages = signal<AvantagesState>(cloneAvantages(DEFAULT_AVANTAGES));
 
-  // --- Mode mixte ---
-  readonly mixteActif = signal(false);
+  // --- Type de rémunération ---
+  readonly typeRemu = signal<TypeRemu>('mixte');
   readonly salaireBrutMixte = signal(this.fiscal.brutMin4Trimestres(DEFAULT_PARAMS));
+
+  readonly types: ReadonlyArray<{ value: TypeRemu; label: string }> = [
+    { value: 'dividende', label: 'Full dividende' },
+    { value: 'mixte', label: 'Mixte' },
+    { value: 'salaire', label: 'Full salaire' },
+  ];
+
+  readonly isMixte = computed(() => this.typeRemu() === 'mixte');
 
   readonly result = computed(() => this.fiscal.compare(this.netCible(), this.params()));
 
@@ -50,13 +72,30 @@ export class SimulatorComponent {
     this.fiscal.mixte(this.netCible(), this.salaireBrutMixte(), this.params()),
   );
 
-  // Vues unifiées : parts du mix, ou scénarios purs.
-  readonly salView = computed(() =>
-    this.mixteActif() ? this.mixteResult().salaire : this.result().salaire,
-  );
-  readonly divView = computed(() =>
-    this.mixteActif() ? this.mixteResult().dividende : this.result().dividende,
-  );
+  // Brut effectivement choisi selon le type (pour la position du curseur).
+  readonly brutChoisi = computed(() => {
+    switch (this.typeRemu()) {
+      case 'dividende': return 0;
+      case 'salaire': return this.brutMax();
+      case 'mixte': return this.salaireBrutMixte();
+    }
+  });
+
+  // Vues unifiées : dividende pur, mix, ou salaire pur — l'autre côté est zéro.
+  readonly salView = computed<SalaireResult>(() => {
+    switch (this.typeRemu()) {
+      case 'dividende': return ZERO_SAL;
+      case 'salaire': return this.result().salaire;
+      case 'mixte': return this.mixteResult().salaire;
+    }
+  });
+  readonly divView = computed<DividendeResult>(() => {
+    switch (this.typeRemu()) {
+      case 'dividende': return this.result().dividende;
+      case 'salaire': return ZERO_DIV;
+      case 'mixte': return this.mixteResult().dividende;
+    }
+  });
 
   // --- Avantages payés par la société (réservés au salaire) ---
   readonly avantagesResults = computed(() =>
@@ -76,23 +115,18 @@ export class SimulatorComponent {
     this.avantagesResults().reduce((s, a) => s + a.economie, 0),
   );
 
-  // Coût total entreprise, avantages financés par la société inclus.
-  // Le salaire (ou la part salaire du mix) rend les avantages déductibles et exonérés ;
-  // en dividende pur ils doivent être auto-financés sur le net (coût « perso »).
-  readonly coutMixteAvecAvantages = computed(
-    () => this.mixteResult().coutTotal + this.avantagesCoutSociete(),
+  // Coût rémunération entreprise (avant ajout des avantages), tous types confondus.
+  readonly coutRemu = computed(
+    () => this.salView().coutEntreprise + this.divView().coutEntreprise,
   );
-  readonly coutSalaireAvecAvantages = computed(
-    () => this.result().salaire.coutEntreprise + this.avantagesCoutSociete(),
+  // Avantages : déductibles via société quand il y a un salaire,
+  // sinon auto-financés sur le net (coût « perso »).
+  readonly avantagesCoutTotal = computed(() =>
+    this.typeRemu() === 'dividende' ? this.avantagesCoutPerso() : this.avantagesCoutSociete(),
   );
-  readonly coutDividendeAvecAvantages = computed(
-    () => this.result().dividende.coutEntreprise + this.avantagesCoutPerso(),
+  readonly coutTotalAvecAvantages = computed(
+    () => this.coutRemu() + this.avantagesCoutTotal(),
   );
-  readonly meilleurAvecAvantages = computed<'salaire' | 'dividende' | 'egalite'>(() => {
-    const diff = this.coutSalaireAvecAvantages() - this.coutDividendeAvecAvantages();
-    if (Math.abs(diff) < 1) return 'egalite';
-    return diff > 0 ? 'dividende' : 'salaire';
-  });
 
   // Économie d'IS apportée par la déductibilité du salaire + charges :
   // IS qui serait dû si ce flux était un bénéfice taxable au lieu d'être déduit.
@@ -106,8 +140,9 @@ export class SimulatorComponent {
   );
 
   constructor() {
-    // Garde le brut du curseur dans les bornes valides.
+    // Garde le brut du curseur dans les bornes valides (uniquement en mode mixte).
     effect(() => {
+      if (this.typeRemu() !== 'mixte') return;
       const min = this.brutMin();
       const max = this.brutMax();
       const v = this.salaireBrutMixte();
@@ -136,11 +171,16 @@ export class SimulatorComponent {
     this.params.set(clone(DEFAULT_PARAMS));
   }
 
-  toggleMixte(event: Event): void {
-    const on = (event.target as HTMLInputElement).checked;
-    this.mixteActif.set(on);
-    if (on) {
-      this.salaireBrutMixte.set(this.brutMin());
+  setType(t: TypeRemu): void {
+    this.typeRemu.set(t);
+    if (t === 'mixte') {
+      const min = this.brutMin();
+      const max = this.brutMax();
+      const v = this.salaireBrutMixte();
+      const clamped = Math.min(max, Math.max(min, v));
+      if (clamped !== v) {
+        this.salaireBrutMixte.set(clamped);
+      }
     }
   }
 
@@ -194,9 +234,12 @@ export class SimulatorComponent {
     L.push(`- **Net annuel souhaité (dans la poche)** : ${e(net)}`);
     L.push(`- Parts fiscales : ${p.partsFiscales}`);
     L.push(`- Autres revenus imposables : ${e(p.autresRevenusImposables)}`);
-    L.push(
-      `- Mode : ${this.mixteActif() ? 'Rémunération mixte (salaire + dividendes)' : 'Comparaison salaire pur vs dividende pur'}`,
-    );
+    const modeLabel = ({
+      dividende: 'Full dividende (100 %)',
+      mixte: 'Rémunération mixte (salaire + dividendes)',
+      salaire: 'Full salaire (100 %)',
+    } as const)[this.typeRemu()];
+    L.push(`- Mode : ${modeLabel}`);
     L.push('', '### Taux retenus', '');
     L.push(`- PFU (dividendes) : ${pc(p.tauxPFU)}`);
     L.push(`- IS : ${pc(p.isTauxReduit)} jusqu'à ${e(p.isSeuil)}, puis ${pc(p.isTauxNormal)}`);
@@ -207,34 +250,32 @@ export class SimulatorComponent {
       .join(' · ');
     L.push(`- Barème IR (par part) : ${bareme}`, '');
 
-    if (this.mixteActif()) {
+    const t = this.typeRemu();
+    const sal = this.salView();
+    const div = this.divView();
+
+    L.push('## Résultat', '');
+    L.push(`- **Coût rémunération entreprise** : ${e(this.coutRemu())} / an`);
+    if (t === 'mixte') {
       const mr = this.mixteResult();
-      const surcout = mr.coutTotal - this.result().dividende.coutEntreprise;
-      L.push('## Résultat — rémunération mixte', '');
-      L.push(`- **Coût total entreprise** : ${e(mr.coutTotal)} / an`);
       L.push(`- Trimestres validés : ${mr.trimestres}/4 · protection sociale : ${mr.secuOuverte ? 'ouverte' : 'non'}`);
-      L.push(`- Surcoût vs 100 % dividende : ${e(surcout)} / an`, '');
-      L.push('| | Part salaire | Part dividendes |', '|---|---|---|');
-      L.push(`| Coût entreprise | ${e(mr.salaire.coutEntreprise)} | ${e(mr.dividende.coutEntreprise)} |`);
-      L.push(`| Net perçu | ${e(mr.salaire.netPoche)} | ${e(mr.dividende.netPoche)} |`);
-      L.push(`| Salaire brut | ${e(mr.salaire.brut)} | — |`, '');
+      L.push(`- Surcoût vs 100 % dividende : ${e(mr.coutTotal - this.result().dividende.coutEntreprise)} / an`);
+    } else if (t === 'salaire') {
+      L.push(`- Trimestres validés : ${this.fiscal.trimestresValides(sal.brut, p)}/4 · protection sociale ouverte`);
     } else {
-      const r = this.result();
-      L.push('## Résultat — comparaison', '');
-      L.push('| | Salaire | Dividende |', '|---|---|---|');
-      L.push(`| **Coût entreprise** | ${e(r.salaire.coutEntreprise)} | ${e(r.dividende.coutEntreprise)} |`);
-      L.push(`| Taux de prélèvement global | ${pc(r.salaire.tauxPrelevementGlobal)} | ${pc(r.dividende.tauxPrelevementGlobal)} |`);
-      L.push(`| Brut salaire / Bénéfice avant IS | ${e(r.salaire.brut)} | ${e(r.dividende.beneficeAvantIS)} |`);
-      L.push(`| Impôt sociétés (IS) | 0 € (déductible) | ${e(r.dividende.is)} |`);
-      L.push(`| Charges sociales / PFU | ${e(r.salaire.chargesPatronales + r.salaire.chargesSalariales)} | ${e(r.dividende.pfu)} |`);
-      L.push(`| Impôt sur le revenu | ${e(r.salaire.ir)} | — |`, '');
-      const reco =
-        r.meilleur === 'egalite'
-          ? 'Les deux options se valent.'
-          : r.meilleur === 'dividende'
-            ? `Les dividendes sont plus avantageux : économie ${e(r.economie)} / an.`
-            : `Le salaire est plus avantageux : économie ${e(r.economie)} / an.`;
-      L.push(`**${reco}**`, '');
+      L.push('- Aucun trimestre, droits sociaux fermés (dividende pur).');
+    }
+    L.push('');
+
+    if (t !== 'dividende') {
+      L.push('### Part salaire', '');
+      L.push(`- Coût entreprise : ${e(sal.coutEntreprise)} · brut : ${e(sal.brut)}`);
+      L.push(`- IR : ${e(sal.ir)} · net perçu : ${e(sal.netPoche)}`, '');
+    }
+    if (t !== 'salaire') {
+      L.push('### Part dividende', '');
+      L.push(`- Coût entreprise : ${e(div.coutEntreprise)} · bénéfice avant IS : ${e(div.beneficeAvantIS)}`);
+      L.push(`- IS : ${e(div.is)} · PFU : ${e(div.pfu)} · net perçu : ${e(div.netPoche)}`, '');
     }
 
     const av = this.fiscal.calcAvantages(this.avantages(), p);
@@ -242,9 +283,7 @@ export class SimulatorComponent {
       const totalEco = av.reduce((s, x) => s + x.economie, 0);
       const coutSoc = av.reduce((s, x) => s + x.coutSociete, 0);
       const valeur = av.reduce((s, x) => s + x.valeurRecue, 0);
-      const baseCout = this.mixteActif()
-        ? this.mixteResult().coutTotal
-        : this.result().salaire.coutEntreprise;
+      const baseCout = this.coutRemu();
       L.push('## Avantages payés par la société', '');
       L.push('| Avantage | Via société | Via perso | Économie |', '|---|---|---|---|');
       for (const a of av) {

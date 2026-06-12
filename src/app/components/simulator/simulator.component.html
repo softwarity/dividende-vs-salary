@@ -122,168 +122,141 @@
   <!-- Avantages payés par la société (réservés au salaire) -->
   <app-avantages-panel [(avantages)]="avantages" [params]="params()" />
 
-  <!-- Mode de rémunération -->
+  <!-- Rémunération type -->
   <section class="mat-card p-5">
-    <label class="flex cursor-pointer items-center gap-3">
-      <input
-        type="checkbox" class="h-5 w-5 accent-primary-600"
-        [checked]="mixteActif()" (change)="toggleMixte($event)"
-      />
-      <span class="font-medium text-slate-100">Rémunération mixte (salaire + dividendes)</span>
-    </label>
+    <header class="mb-3 flex items-center gap-2">
+      <span class="material-symbols-rounded text-primary-400">tune</span>
+      <h2 class="text-lg font-semibold text-slate-100">Rémunération type</h2>
+    </header>
 
-    @if (mixteActif()) {
-      @let mr = mixteResult();
-      <div class="mt-4">
-        <div class="mb-1 flex items-center justify-between text-sm">
-          <span class="text-slate-400">Salaire brut annuel</span>
-          <span class="font-semibold text-slate-100">{{ euro(mr.salaire.brut) }}</span>
-        </div>
-        <input
-          type="range"
-          class="h-2 w-full cursor-pointer appearance-none rounded-full bg-slate-700 accent-primary-600"
-          [min]="brutMin()" [max]="brutMax()" step="500"
-          [value]="salaireBrutMixte()" (input)="setSalaireBrutMixte($event)"
-        />
-        <div class="mt-1 flex justify-between text-[11px] text-slate-400">
-          <span>min {{ euro(brutMin()) }} · 4 trimestres</span>
-          <span>max {{ euro(brutMax()) }} · 100 % salaire</span>
-        </div>
-        <p class="mt-3 flex flex-wrap items-center gap-2">
-          <span class="mat-chip bg-primary-500/15 text-primary-300">
-            {{ mr.trimestres }}/4 trimestres validés
-          </span>
-          <span class="mat-chip bg-accent-500/15 text-accent-300">protection sociale ouverte</span>
-        </p>
+    <div class="grid grid-cols-3 gap-1 rounded-lg bg-slate-800 p-1">
+      @for (t of types; track t.value) {
+        <button
+          type="button"
+          class="rounded-md px-3 py-2 text-sm font-medium transition"
+          [class.bg-primary-600]="typeRemu() === t.value"
+          [class.text-white]="typeRemu() === t.value"
+          [class.text-slate-300]="typeRemu() !== t.value"
+          [class.hover:text-slate-100]="typeRemu() !== t.value"
+          (click)="setType(t.value)"
+        >
+          {{ t.label }}
+        </button>
+      }
+    </div>
+
+    <div class="mt-4">
+      <div class="mb-1 flex items-center justify-between text-sm">
+        <span class="text-slate-400">Salaire brut annuel</span>
+        <span class="font-semibold text-slate-100">{{ euro(salView().brut) }}</span>
       </div>
-    } @else {
-      <p class="mt-2 text-sm text-slate-400">
-        Comparaison salaire pur vs dividende pur. Activez le mode mixte pour répartir la
-        rémunération et garantir vos droits (retraite, sécurité sociale).
+      <input
+        type="range"
+        class="h-2 w-full appearance-none rounded-full bg-slate-700 accent-primary-600 disabled:cursor-not-allowed disabled:opacity-60"
+        [class.cursor-pointer]="isMixte()"
+        min="0"
+        [max]="brutMax()"
+        step="500"
+        [value]="brutChoisi()"
+        [disabled]="!isMixte()"
+        (input)="setSalaireBrutMixte($event)"
+      />
+      <div class="mt-1 flex justify-between text-[11px] text-slate-400">
+        <span>0 · dividende pur</span>
+        <span class="text-center">mixte ≥ {{ euro(brutMin()) }} · 4 trim.</span>
+        <span>max {{ euro(brutMax()) }} · 100 % salaire</span>
+      </div>
+      <p class="mt-3 flex flex-wrap items-center gap-2">
+        <span class="mat-chip bg-primary-500/15 text-primary-300">
+          {{ trimestres(salView().brut) }}/4 trimestres
+        </span>
+        @if (trimestres(salView().brut) >= 1) {
+          <span class="mat-chip bg-accent-500/15 text-accent-300">protection sociale ouverte</span>
+        } @else {
+          <span class="mat-chip bg-slate-800 text-slate-400">droits non ouverts</span>
+        }
       </p>
-    }
+    </div>
   </section>
 
   @let r = result();
   @let sal = salView();
   @let div = divView();
 
-  <!-- Coût total / recommandation -->
-  @if (mixteActif()) {
-    @let mr = mixteResult();
-    <section class="mat-card flex flex-col gap-4 p-5 ring-1 ring-primary-400">
-      <div class="flex items-center gap-4">
-        <span class="material-symbols-rounded text-3xl text-primary-400">savings</span>
+  <!-- Coût total -->
+  <section class="mat-card flex flex-col gap-4 p-5 ring-1 ring-primary-400">
+    <div class="flex items-center gap-4">
+      <span class="material-symbols-rounded text-3xl text-primary-400">savings</span>
+      <div>
+        <p class="font-semibold text-slate-100">
+          Coût total entreprise : {{ euro(coutTotalAvecAvantages()) }} / an.
+        </p>
+        <p class="text-sm text-slate-400">
+          @switch (typeRemu()) {
+            @case ('dividende') {
+              100 % dividendes — 0/4 trimestre, droits sociaux fermés.
+            }
+            @case ('salaire') {
+              100 % salaire — {{ trimestres(sal.brut) }}/4 trimestres, protection sociale maximale.
+              Surcoût vs 100 % dividende :
+              <strong>{{ euro(coutRemu() - r.dividende.coutEntreprise) }}</strong> / an.
+            }
+            @case ('mixte') {
+              {{ trimestres(sal.brut) }}/4 trimestres validés, protection sociale ouverte.
+              Surcoût vs 100 % dividende :
+              <strong>{{ euro(coutRemu() - r.dividende.coutEntreprise) }}</strong> / an.
+            }
+          }
+        </p>
+      </div>
+    </div>
+
+    @if (avantagesActifs()) {
+      <div class="grid gap-3 border-t border-slate-700 pt-4 text-sm sm:grid-cols-3">
         <div>
-          <p class="font-semibold text-slate-100">
-            Coût total entreprise : {{ euro(coutMixteAvecAvantages()) }} / an.
+          <p class="text-slate-400">Rémunération ({{ euro(netCible()) }} net)</p>
+          <p class="text-base font-semibold text-slate-100">{{ euro(coutRemu()) }}</p>
+        </div>
+        <div>
+          <p class="text-slate-400">
+            + Avantages {{ typeRemu() === 'dividende' ? 'auto-financés' : 'via société' }}
           </p>
-          <p class="text-sm text-slate-400">
-            Vous validez {{ mr.trimestres }}/4 trimestres et ouvrez la protection sociale.
-            Surcoût vs 100 % dividende :
-            <strong>{{ euro(mr.coutTotal - r.dividende.coutEntreprise) }}</strong> / an.
+          <p
+            class="text-base font-semibold"
+            [class.text-accent-300]="typeRemu() !== 'dividende'"
+            [class.text-slate-200]="typeRemu() === 'dividende'"
+          >
+            {{ euro(avantagesCoutTotal()) }}
           </p>
+        </div>
+        <div>
+          <p class="text-slate-400">Vous recevez en nature</p>
+          <p class="text-base font-semibold text-slate-100">{{ euro(avantagesValeur()) }} d'avantages</p>
         </div>
       </div>
-
-      @if (avantagesActifs()) {
-        <div class="grid gap-3 border-t border-slate-700 pt-4 text-sm sm:grid-cols-3">
-          <div>
-            <p class="text-slate-400">Rémunération ({{ euro(netCible()) }} net)</p>
-            <p class="text-base font-semibold text-slate-100">{{ euro(mr.coutTotal) }}</p>
-          </div>
-          <div>
-            <p class="text-slate-400">+ Avantages via société</p>
-            <p class="text-base font-semibold text-accent-300">{{ euro(avantagesCoutSociete()) }}</p>
-          </div>
-          <div>
-            <p class="text-slate-400">Vous recevez en nature</p>
-            <p class="text-base font-semibold text-slate-100">{{ euro(avantagesValeur()) }} d'avantages</p>
-          </div>
-        </div>
-        <p class="text-[11px] leading-relaxed text-slate-400">
+      <p class="text-[11px] leading-relaxed text-slate-400">
+        @if (typeRemu() === 'dividende') {
+          Sans salaire, les avantages sont financés sur votre net (pas d'exonération URSSAF).
+          Passez en mode mixte ou salaire pour économiser
+          <strong class="text-accent-300">{{ euro(avantagesEconomie()) }}</strong> / an.
+        } @else {
           Les avantages payés par la société sont déductibles : ils réduisent le bénéfice
           imposable, donc l'IS. Les financer ainsi plutôt que sur votre net rapporte
           <strong class="text-accent-300">{{ euro(avantagesEconomie()) }}</strong> / an.
-        </p>
-      }
-    </section>
-  } @else {
-    <section
-      class="mat-card flex flex-col gap-4 p-5"
-      [class.ring-1]="true"
-      [class.ring-accent-400]="r.meilleur === 'dividende'"
-      [class.ring-primary-400]="r.meilleur === 'salaire'"
-    >
-      <div class="flex items-center gap-4">
-        <span
-          class="material-symbols-rounded text-3xl"
-          [class.text-accent-400]="r.meilleur === 'dividende'"
-          [class.text-primary-400]="r.meilleur !== 'dividende'"
-        >
-          {{ r.meilleur === 'egalite' ? 'balance' : 'recommend' }}
-        </span>
-        <div>
-          @if (r.meilleur === 'dividende') {
-            <p class="font-semibold text-slate-100">
-              Les dividendes sont plus avantageux pour la société.
-            </p>
-          } @else if (r.meilleur === 'salaire') {
-            <p class="font-semibold text-slate-100">
-              Le salaire est plus avantageux pour la société.
-            </p>
-          } @else {
-            <p class="font-semibold text-slate-100">Les deux options se valent.</p>
-          }
-          @if (r.meilleur !== 'egalite') {
-            <p class="text-sm text-slate-400">
-              Économie sur le coût entreprise : <strong>{{ euro(r.economie) }}</strong> par an
-              pour un même net dans la poche.
-            </p>
-          }
-        </div>
-      </div>
+        }
+      </p>
+    }
+  </section>
 
-      @if (avantagesActifs()) {
-        <div class="grid gap-3 border-t border-slate-700 pt-4 text-sm sm:grid-cols-2">
-          <div class="rounded-lg bg-primary-500/10 p-3">
-            <p class="text-slate-400">Salaire + avantages</p>
-            <p class="text-lg font-bold text-primary-300">{{ euro(coutSalaireAvecAvantages()) }}</p>
-            <p class="mt-0.5 text-[11px] text-slate-400">
-              {{ euro(r.salaire.coutEntreprise) }} + {{ euro(avantagesCoutSociete()) }} d'avantages
-              déductibles (l'IS baisse).
-            </p>
-          </div>
-          <div class="rounded-lg bg-accent-500/10 p-3">
-            <p class="text-slate-400">Dividende + avantages</p>
-            <p class="text-lg font-bold text-accent-400">{{ euro(coutDividendeAvecAvantages()) }}</p>
-            <p class="mt-0.5 text-[11px] text-slate-400">
-              {{ euro(r.dividende.coutEntreprise) }} + {{ euro(avantagesCoutPerso()) }} auto-financés
-              sur votre net.
-            </p>
-          </div>
-        </div>
-        <p class="text-[11px] leading-relaxed text-slate-400">
-          Vous recevez {{ euro(avantagesValeur()) }} d'avantages en nature. En les passant par
-          la société plutôt que sur votre net :
-          <strong class="text-accent-300">{{ euro(avantagesEconomie()) }}</strong> d'économie / an.
-        </p>
-      }
-    </section>
-  }
-
-  <!-- Deux colonnes de comparaison -->
-  <div class="grid gap-6 md:grid-cols-2">
+  <!-- Détail rémunération (cartes filtrées selon le type) -->
+  <div class="grid gap-6" [class.md:grid-cols-2]="isMixte()">
+    @if (typeRemu() !== 'dividende') {
     <!-- Salaire -->
-    <section
-      class="mat-card p-5"
-      [class.ring-2]="!mixteActif() && r.meilleur === 'salaire'"
-      [class.ring-primary-500]="!mixteActif() && r.meilleur === 'salaire'"
-    >
+    <section class="mat-card p-5">
       <header class="mb-4 flex items-center gap-2">
         <span class="material-symbols-rounded text-primary-400">badge</span>
         <h2 class="text-lg font-semibold text-slate-100">
-          {{ mixteActif() ? 'Part salaire' : 'Rémunération en salaire' }}
+          {{ isMixte() ? 'Part salaire' : 'Rémunération en salaire' }}
         </h2>
       </header>
 
@@ -332,7 +305,7 @@
           <dt class="text-slate-400">Impôt sur le revenu</dt>
           <dd class="font-medium">{{ euro(sal.ir) }}</dd>
         </div>
-        @if (mixteActif()) {
+        @if (isMixte()) {
           <div class="flex justify-between py-2">
             <dt class="text-slate-400">Net perçu (part salaire)</dt>
             <dd class="font-semibold text-accent-400">{{ euro(sal.netPoche) }}</dd>
@@ -349,17 +322,15 @@
         sortie en salaire — alors que les dividendes, eux, sont versés après IS.
       </p>
     </section>
+    }
 
+    @if (typeRemu() !== 'salaire') {
     <!-- Dividende -->
-    <section
-      class="mat-card p-5"
-      [class.ring-2]="!mixteActif() && r.meilleur === 'dividende'"
-      [class.ring-accent-500]="!mixteActif() && r.meilleur === 'dividende'"
-    >
+    <section class="mat-card p-5">
       <header class="mb-4 flex items-center gap-2">
         <span class="material-symbols-rounded text-accent-400">payments</span>
         <h2 class="text-lg font-semibold text-slate-100">
-          {{ mixteActif() ? 'Part dividendes' : 'Rémunération en dividendes' }}
+          {{ isMixte() ? 'Part dividendes' : 'Rémunération en dividendes' }}
         </h2>
       </header>
 
@@ -387,7 +358,7 @@
           <dt class="text-slate-400">PFU (flat tax)</dt>
           <dd class="font-medium">{{ euro(div.pfu) }}</dd>
         </div>
-        @if (mixteActif()) {
+        @if (isMixte()) {
           <div class="flex justify-between py-2">
             <dt class="text-slate-400">Net perçu (part dividendes)</dt>
             <dd class="font-semibold text-accent-400">{{ euro(div.netPoche) }}</dd>
@@ -399,6 +370,7 @@
         </div>
       </dl>
     </section>
+    }
   </div>
 
   <!-- Graphes -->
