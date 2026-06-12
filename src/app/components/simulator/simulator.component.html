@@ -24,17 +24,25 @@
     </p>
 
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
-      <div class="relative w-full sm:w-64">
-        <input
-          id="netCible"
-          type="number"
-          step="1000"
-          min="0"
-          class="mat-input pr-10 text-2xl font-semibold"
-          [value]="netCible()"
-          (input)="setNet($event)"
-        />
-        <span class="pointer-events-none absolute right-3 top-3.5 text-slate-400">€</span>
+      <div class="flex w-full flex-col gap-1.5 sm:w-64">
+        <div class="relative">
+          <input
+            id="netCible"
+            type="number"
+            step="1000"
+            min="0"
+            class="mat-input pr-10 text-2xl font-semibold"
+            [value]="netCible()"
+            (input)="setNet($event)"
+          />
+          <span class="pointer-events-none absolute right-3 top-3.5 text-slate-400">€</span>
+        </div>
+        <span
+          class="self-start rounded-md bg-primary-500/15 px-2 py-0.5 text-xs font-medium text-primary-300"
+          title="Net après charges sociales mais avant impôt sur le revenu, si vous preniez 100 % en salaire."
+        >
+          ≈ {{ euro(result().salaire.netSocial) }} avant IR (équivalent 100 % salaire)
+        </span>
       </div>
 
       <input
